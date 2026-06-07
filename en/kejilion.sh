@@ -2241,7 +2241,7 @@ web_security() {
 					  echo -e "${gl_huang}The website automatically detects every 5 minutes. When it detects high load, it will automatically open the shield, and when it detects low load, it will automatically close the shield for 5 seconds.${gl_bai}"
 					  echo "--------------"
 					  echo "Get CF parameters:"
-					  echo -e "Go to my profile in the upper right corner of the cf backend, select the API token on the left, and obtain${gl_huang}Global API Key${gl_bai}"
+					  echo -e "Go to my profile in the upper right corner of the cf backend, select the API token on the left, and get${gl_huang}Global API Key${gl_bai}"
 					  echo -e "Go to the bottom right of the cf backend domain name summary page to get it${gl_huang}Area ID${gl_bai}"
 					  echo "https://dash.cloudflare.com/login"
 					  echo "--------------"
@@ -2324,7 +2324,7 @@ check_nginx_compression() {
 
 	# Check whether zstd is on and uncommented (the whole line starts with zstd on;)
 	if grep -qE '^\s*zstd\s+on;' "$CONFIG_FILE"; then
-		zstd_status="zstd compression is on"
+		zstd_status="zstd compression is enabled"
 	else
 		zstd_status=""
 	fi
@@ -2942,7 +2942,7 @@ while true; do
 			rm -f /home/docker/${docker_name}_port.conf
 
 			sed -i "/\b${app_id}\b/d" /home/docker/appno.txt
-			echo "App uninstalled"
+			echo "App has been uninstalled"
 			send_stats "uninstall$docker_name"
 			;;
 
@@ -3221,7 +3221,7 @@ f2b_sshd() {
 
 # Basic parameter configuration: ban duration (bantime), time window (findtime), number of retries (maxretry)
 # illustrate:
-# - Prioritize writing to /etc/fail2ban/jail.d/sshd.local (overwrites the default jail configuration and is not easy to lose when upgrading)
+# - Prioritize writing to /etc/fail2ban/jail.d/sshd.local (overrides the default jail configuration and is not easy to lose when upgrading)
 # - If it is Alpine and the jail names are different, still write sshd.local; Fail2Ban will match according to the jail name.
 f2b_basic_config() {
 	root_use
@@ -4392,7 +4392,7 @@ frps_panel() {
 				close_port 8055 8056
 
 				sed -i "/\b${app_id}\b/d" /home/docker/appno.txt
-				echo "App uninstalled"
+				echo "App has been uninstalled"
 				;;
 			5)
 				echo "Reverse intranet penetration service into domain name access"
@@ -4489,7 +4489,7 @@ frpc_panel() {
 				close_port 8055
 
 				sed -i "/\b${app_id}\b/d" /home/docker/appno.txt
-				echo "App uninstalled"
+				echo "App has been uninstalled"
 				;;
 
 			4)
@@ -5250,7 +5250,7 @@ add_sshpasswd() {
 
 root_use() {
 clear
-[ "$EUID" -ne 0 ] && echo -e "${gl_huang}hint:${gl_bai}This feature requires root user to run!" && break_end && kejilion
+[ "$EUID" -ne 0 ] && echo -e "${gl_huang}hint:${gl_bai}This function requires root user to run!" && break_end && kejilion
 }
 
 
@@ -5701,7 +5701,7 @@ bbrv3() {
 				}
 
 				package=$(xanmod_detect_package) || {
-					echo "The current CPU cannot be recognized or the matching kernel package cannot be found. The installation has been cancelled."
+					echo "The current CPU cannot be recognized or a matching kernel package cannot be found. The installation has been cancelled."
 					return 1
 				}
 
@@ -6420,7 +6420,7 @@ Kernel_optimize() {
 			  cd ~
 			  clear
 			  optimize_web_server
-			  send_stats "Website optimization model"
+			  send_stats "Website optimization mode"
 			  ;;
 		  4)
 			  cd ~
@@ -7189,7 +7189,7 @@ mount_partition() {
 		return 1
 	fi
 
-	echo "The partition was successfully mounted to$MOUNT_POINT"
+	echo "Partition successfully mounted to$MOUNT_POINT"
 
 	# Check /etc/fstab to see if the UUID or mount point already exists
 	if grep -qE "UUID=$UUID|[[:space:]]$MOUNT_POINT[[:space:]]" /etc/fstab; then
@@ -8175,7 +8175,7 @@ docker_ssh_migration() {
 				local VOL_ARGS=""
 				for path in $VOL_PATHS; do VOL_ARGS+="-v $path:$path "; done
 
-				# Mirror
+				# mirror
 				local IMAGE
 				IMAGE=$(jq -r '.[0].Config.Image' "$inspect_file")
 
@@ -10085,7 +10085,7 @@ moltbot_menu() {
 			return 1
 		fi
 
-		# Add --no-update-notifier and make sure error redirects are in the correct location
+		# Add --no-update-notifier and make sure error redirection is in the correct location
 		local_version=$(npm list -g openclaw --depth=0 --no-update-notifier 2>/dev/null | grep openclaw | awk '{print $NF}' | sed 's/^.*@//')
 
 		if [ -z "$local_version" ]; then
@@ -10567,8 +10567,8 @@ PY
 
 
 	start_bot() {
-		echo "Start OpenClaw..."
-		send_stats "Start OpenClaw..."
+		echo "Starting OpenClaw..."
+		send_stats "Starting OpenClaw..."
 		start_gateway
 		break_end
 	}
@@ -12211,7 +12211,7 @@ PYTHON_EOF
 
 			echo "1) Install/enable plugin"
 			echo "2) Delete/disable plugins"
-			echo "0) Return"
+			echo "0) return"
 			read -e -p "Please select an action:" plugin_action
 
 			[ "$plugin_action" = "0" ] && break
@@ -12339,7 +12339,7 @@ PYTHON_EOF
 
 			echo "1) Installation skills"
 			echo "2) Delete skills"
-			echo "0) Return"
+			echo "0) return"
 			read -e -p "Please select an action:" skill_action
 
 			[ "$skill_action" = "0" ] && break
@@ -14568,7 +14568,7 @@ print(json.dumps(data, indent=2))
 		if openclaw_has_command openclaw && echo "$json_payload" | openclaw approvals set --stdin >/dev/null 2>&1; then
 			return 0
 		fi
-		# Fallback: write file directly
+		# Fallback: Write the file directly
 		echo "$json_payload" > "$approvals_file"
 	}
 
@@ -14705,7 +14705,7 @@ except Exception:
 		openclaw_permission_update_exec_approvals "full" "off" "full"
 
 		openclaw_permission_restart_gateway
-		echo -e "${gl_lv}✅ Switched to fully open mode (Warning: All host command interceptions have expired, and the agent has the highest permissions)${gl_bai}"
+		echo -e "${gl_lv}✅ Has been switched to fully open mode (Warning: All host command interceptions have expired, and the agent has the highest permissions)${gl_bai}"
 	}
 
 	openclaw_permission_restore_official_defaults() {
@@ -14737,7 +14737,7 @@ except Exception:
 		echo "======================================="
 		openclaw security audit
 		echo "---------------------------------------"
-		read -e -p "Do you want to automatically remediate discovered security vulnerabilities? (y/n):" fix_choice
+		read -e -p "Attempt to automatically remediate discovered security vulnerabilities? (y/n):" fix_choice
 		if [[ "$fix_choice" == "y" || "$fix_choice" == "Y" || "$fix_choice" == "yes" ]]; then
 			openclaw security audit --fix
 			echo -e "${gl_lv}✅ Automatic repair completed.${gl_bai}"
@@ -15160,7 +15160,7 @@ for idx,item in enumerate(bindings,1):
 	}
 
 	openclaw_multiagent_remove_binding() {
-		send_stats "OpenClaw multi-agent - remove routing binding"
+		send_stats "OpenClaw multi-agent - remove route binding"
 		openclaw_multiagent_require_openclaw || return 1
 		local agent_id bind_value confirm
 		read -e -p "Please enter the agent ID:" agent_id
@@ -15255,7 +15255,7 @@ print("✅Multi-agent health check completed")
 		local cmd="openclaw agents set-identity --agent $agent_id"
 		[ -n "$new_name" ] && cmd="$cmd --name $new_name"
 		[ -n "$new_emoji" ] && cmd="$cmd --emoji $new_emoji"
-		echo "Identity information can also be automatically read from IDENTITY.md."
+		echo "Identity information can also be read automatically from IDENTITY.md."
 		read -e -p "Read from IDENTITY.md? (y/n):" from_id
 		if [ "$from_id" = "y" ]; then
 			cmd="openclaw agents set-identity --agent $agent_id --from-identity"
@@ -15599,7 +15599,7 @@ while true; do
 
 	  echo -e "${gl_kjlan}1.   ${color1}Pagoda panel official version${gl_kjlan}2.   ${color2}aaPanel Pagoda International Version"
 	  echo -e "${gl_kjlan}3.   ${color3}1Panel new generation management panel${gl_kjlan}4.   ${color4}NginxProxyManager visualization panel"
-	  echo -e "${gl_kjlan}5.   ${color5}OpenList multi-store file list program${gl_kjlan}6.   ${color6}Ubuntu Remote Desktop Web Version"
+	  echo -e "${gl_kjlan}5.   ${color5}OpenList multi-store file list program${gl_kjlan}6.   ${color6}Ubuntu Remote Desktop Web Edition"
 	  echo -e "${gl_kjlan}7.   ${color7}Nezha Probe VPS Monitoring Panel${gl_kjlan}8.   ${color8}QB offline BT magnetic download panel"
 	  echo -e "${gl_kjlan}9.   ${color9}Poste.io mail server program${gl_kjlan}10.  ${color10}RocketChat multi-person online chat system"
 	  echo -e "${gl_kjlan}-------------------------"
@@ -16074,7 +16074,7 @@ while true; do
 					rm -rf /home/docker/mail
 
 					sed -i "/\b${app_id}\b/d" /home/docker/appno.txt
-					echo "App uninstalled"
+					echo "App has been uninstalled"
 					;;
 
 				*)
@@ -16128,7 +16128,7 @@ while true; do
 			docker rm -f db
 			docker rmi -f mongo:latest
 			rm -rf /home/docker/mongo
-			echo "App uninstalled"
+			echo "App has been uninstalled"
 		}
 
 		docker_app_plus
@@ -16226,7 +16226,7 @@ while true; do
 		docker_app_uninstall() {
 			cd /home/docker/cloud/ && docker compose down --rmi all
 			rm -rf /home/docker/cloud
-			echo "App uninstalled"
+			echo "App has been uninstalled"
 		}
 
 		docker_app_plus
@@ -17112,7 +17112,7 @@ while true; do
 			docker rmi -f grafana/grafana:latest
 
 			rm -rf /home/docker/monitoring
-			echo "App uninstalled"
+			echo "App has been uninstalled"
 		}
 
 		docker_app_plus
@@ -17339,7 +17339,7 @@ while true; do
 		docker_app_uninstall() {
 			cd  /home/docker/dify/docker/ && docker compose down --rmi all
 			rm -rf /home/docker/dify
-			echo "App uninstalled"
+			echo "App has been uninstalled"
 		}
 
 		docker_app_plus
@@ -17391,7 +17391,7 @@ while true; do
 		docker_app_uninstall() {
 			cd  /home/docker/new-api/ && docker compose down --rmi all
 			rm -rf /home/docker/new-api
-			echo "App uninstalled"
+			echo "App has been uninstalled"
 		}
 
 		docker_app_plus
@@ -17432,7 +17432,7 @@ while true; do
 			cd /opt
 			rm -rf jumpserver-installer*/
 			rm -rf jumpserver
-			echo "App uninstalled"
+			echo "App has been uninstalled"
 		}
 
 		docker_app_plus
@@ -17495,7 +17495,7 @@ while true; do
 		docker_app_uninstall() {
 			cd  /home/docker/ragflow/docker/ && docker compose down --rmi all
 			rm -rf /home/docker/ragflow
-			echo "App uninstalled"
+			echo "App has been uninstalled"
 		}
 
 		docker_app_plus
@@ -17823,7 +17823,7 @@ while true; do
 		docker_app_uninstall() {
 			cd /home/docker/moontv/ && docker compose down --rmi all
 			rm -rf /home/docker/moontv
-			echo "App uninstalled"
+			echo "App has been uninstalled"
 		}
 
 		docker_app_plus
@@ -18044,7 +18044,7 @@ while true; do
 		  docker_app_uninstall() {
 			  cd /home/docker/linkwarden && docker compose down --rmi all
 			  rm -rf /home/docker/linkwarden
-			  echo "App uninstalled"
+			  echo "App has been uninstalled"
 		  }
 
 		  docker_app_plus
@@ -18094,7 +18094,7 @@ while true; do
 			  cd "$(ls -dt */ | head -n 1)"
 			  docker compose down --rmi all
 			  rm -rf /home/docker/jitsi
-			  echo "App uninstalled"
+			  echo "App has been uninstalled"
 		  }
 
 		  docker_app_plus
@@ -18230,7 +18230,7 @@ while true; do
 		  docker_app_uninstall() {
 			  cd /home/docker/${docker_name} && docker compose down --rmi all
 			  rm -rf /home/docker/${docker_name}
-			  echo "App uninstalled"
+			  echo "App has been uninstalled"
 		  }
 
 		  docker_app_plus
@@ -18457,7 +18457,7 @@ while true; do
 		docker_app_uninstall() {
 			cd /home/docker/gitea/ && docker compose down --rmi all
 			rm -rf /home/docker/gitea
-			echo "App uninstalled"
+			echo "App has been uninstalled"
 		}
 
 		docker_app_plus
@@ -18595,7 +18595,7 @@ while true; do
 		docker_app_uninstall() {
 			cd /home/docker/paperless/ && docker compose down --rmi all
 			rm -rf /home/docker/paperless
-			echo "App uninstalled"
+			echo "App has been uninstalled"
 		}
 
 		docker_app_plus
@@ -18649,7 +18649,7 @@ while true; do
 		docker_app_uninstall() {
 			cd /home/docker/2fauth/ && docker compose down --rmi all
 			rm -rf /home/docker/2fauth
-			echo "App uninstalled"
+			echo "App has been uninstalled"
 		}
 
 		docker_app_plus
@@ -18882,7 +18882,7 @@ while true; do
 		docker_app_uninstall() {
 			cd /home/docker/dsm/ && docker compose down --rmi all
 			rm -rf /home/docker/dsm
-			echo "App uninstalled"
+			echo "App has been uninstalled"
 		}
 
 		docker_app_plus
@@ -18953,7 +18953,7 @@ while true; do
 		docker_app_uninstall() {
 			cd  /home/docker/MoneyPrinterTurbo/ && docker compose down --rmi all
 			rm -rf /home/docker/MoneyPrinterTurbo
-			echo "App uninstalled"
+			echo "App has been uninstalled"
 		}
 
 		docker_app_plus
@@ -19022,7 +19022,7 @@ while true; do
 		docker_app_uninstall() {
 			cd  /home/docker/umami/ && docker compose down --rmi all
 			rm -rf /home/docker/umami
-			echo "App uninstalled"
+			echo "App has been uninstalled"
 		}
 
 		docker_app_plus
@@ -19163,7 +19163,7 @@ discourse,yunsou,ahhhhfs,nsgame,gying" \
 		docker_app_uninstall() {
 			cd  /home/docker/LangBot/docker/ && docker compose down --rmi all
 			rm -rf /home/docker/LangBot
-			echo "App uninstalled"
+			echo "App has been uninstalled"
 		}
 
 		docker_app_plus
@@ -19233,7 +19233,7 @@ discourse,yunsou,ahhhhfs,nsgame,gying" \
 		docker_app_uninstall() {
 			cd  /home/docker/karakeep/docker/ && docker compose down --rmi all
 			rm -rf /home/docker/karakeep
-			echo "App uninstalled"
+			echo "App has been uninstalled"
 		}
 
 		docker_app_plus
@@ -19377,7 +19377,7 @@ discourse,yunsou,ahhhhfs,nsgame,gying" \
 	  r)
 	  	root_use
 	  	send_stats "Restore all apps"
-	  	echo "Available app backups"
+	  	echo "Available application backups"
 	  	echo "-------------------------"
 	  	ls -lt /app*.gz | awk '{print $NF}'
 	  	echo ""
@@ -19450,7 +19450,7 @@ linux_work() {
 	  echo -e "${gl_kjlan}2.   ${gl_bai}Work Area 2"
 	  echo -e "${gl_kjlan}3.   ${gl_bai}Work Area 3"
 	  echo -e "${gl_kjlan}4.   ${gl_bai}Work Area 4"
-	  echo -e "${gl_kjlan}5.   ${gl_bai}Workspace No. 5"
+	  echo -e "${gl_kjlan}5.   ${gl_bai}Work Area 5"
 	  echo -e "${gl_kjlan}6.   ${gl_bai}Work Area 6"
 	  echo -e "${gl_kjlan}7.   ${gl_bai}Work Area 7"
 	  echo -e "${gl_kjlan}8.   ${gl_bai}Work Area 8"
@@ -20193,7 +20193,7 @@ linux_Settings() {
 			echo "python version management"
 			echo "Video introduction: https://www.bilibili.com/video/BV1Pm42157cK?t=0.1"
 			echo "---------------------------------------"
-			echo "This function can seamlessly install any version officially supported by python!"
+			echo "This function can seamlessly install any version officially supported by Python!"
 			local VERSION=$(python3 -V 2>&1 | awk '{print $2}')
 			echo -e "Current python version number:${gl_huang}$VERSION${gl_bai}"
 			echo "------------"
@@ -20379,8 +20379,8 @@ EOF
 						;;
 					2)
 						rm -f /etc/gai.conf
-						echo "Switched to IPv6 priority"
-						send_stats "Switched to IPv6 priority"
+						echo "Switched to IPv6 first"
+						send_stats "Switched to IPv6 first"
 						;;
 
 					3)
@@ -21091,7 +21091,7 @@ EOF
 			  echo -e "7. Turn on${gl_huang}BBR${gl_bai}accelerate"
 			  echo -e "8. Set time zone to${gl_huang}Shanghai${gl_bai}"
 			  echo -e "9. Automatically optimize DNS addresses${gl_huang}Overseas: 1.1.1.1 8.8.8.8 Domestic: 223.5.5.5${gl_bai}"
-		  	  echo -e "10. Set the network to${gl_huang}ipv4 priority${gl_bai}"
+		  	  echo -e "10. Set the network to${gl_huang}IPv4 priority${gl_bai}"
 			  echo -e "11. Install basic tools${gl_huang}docker wget sudo tar unzip socat btop nano vim${gl_bai}"
 			  echo -e "12. Linux system kernel parameter optimization${gl_huang}Automatically tune according to network environment${gl_bai}"
 			  echo "------------------------------------------------"
@@ -21139,7 +21139,7 @@ EOF
 				  echo -e "[${gl_lv}OK${gl_bai}] 9/12. Automatically optimize DNS address${gl_huang}${gl_bai}"
 				  echo "------------------------------------------------"
 				  prefer_ipv4
-				  echo -e "[${gl_lv}OK${gl_bai}] 10/12. Set the network to${gl_huang}ipv4 priority${gl_bai}}"
+				  echo -e "[${gl_lv}OK${gl_bai}] 10/12. Set the network to${gl_huang}IPv4 priority${gl_bai}}"
 
 				  echo "------------------------------------------------"
 				  install_docker
@@ -21488,7 +21488,7 @@ run_commands_on_servers() {
 		local username=${SERVER_ARRAY[i+3]}
 		local password=${SERVER_ARRAY[i+4]}
 		echo
-		echo -e "${gl_huang}connect to$name ($hostname)...${gl_bai}"
+		echo -e "${gl_huang}Connect to$name ($hostname)...${gl_bai}"
 		# sshpass -p "$password" ssh -o StrictHostKeyChecking=no "$username@$hostname" -p "$port" "$1"
 		sshpass -p "$password" ssh -t -o StrictHostKeyChecking=no "$username@$hostname" -p "$port" "$1"
 	done
