@@ -340,7 +340,7 @@ start() {
 	if [ $? -eq 0 ]; then
 		echo "$1 服务已启动。"
 	else
-		echo "错误：启动 $1서비스가 실패했습니다."
+		echo "错误：启动 $1 服务失败。"
 	fi
 }
 
@@ -380,7 +380,7 @@ enable() {
 
 break_end() {
 	  echo -e "${gl_lv}操作完成${gl_bai}"
-	  echo "계속하려면 아무 키나 누르세요..."
+	  echo "按任意键继续..."
 	  read -n 1 -s -r -p ""
 	  echo ""
 	  clear
@@ -511,9 +511,9 @@ while true; do
 	echo ""
 	echo "容器操作"
 	echo "------------------------"
-	echo "1. 새 컨테이너 생성"
+	echo "1. 创建新的容器"
 	echo "------------------------"
-	echo "2. 지정된 컨테이너 시작 6. 모든 컨테이너 시작"
+	echo "2. 启动指定容器             6. 启动所有容器"
 	echo "3. 停止指定容器             7. 停止所有容器"
 	echo "4. 删除指定容器             8. 删除所有容器"
 	echo "5. 重启指定容器             9. 重启所有容器"
@@ -528,13 +528,13 @@ while true; do
 	read -e -p "请输入你的选择: " sub_choice
 	case $sub_choice in
 		1)
-			send_stats "새 컨테이너 만들기"
-			read -e -p "생성 명령을 입력하십시오:" dockername
+			send_stats "新建容器"
+			read -e -p "请输入创建命令: " dockername
 			$dockername
 			;;
 		2)
-			send_stats "지정된 컨테이너 시작"
-			read -e -p "컨테이너 이름을 입력하세요(여러 컨테이너 이름을 공백으로 구분하세요)." dockername
+			send_stats "启动指定容器"
+			read -e -p "请输入容器名（多个容器名请用空格分隔）: " dockername
 			docker start $dockername
 			;;
 		3)
@@ -543,13 +543,13 @@ while true; do
 			docker stop $dockername
 			;;
 		4)
-			send_stats "지정된 컨테이너 삭제"
-			read -e -p "컨테이너 이름을 입력하세요(여러 컨테이너 이름을 공백으로 구분하세요)." dockername
+			send_stats "删除指定容器"
+			read -e -p "请输入容器名（多个容器名请用空格分隔）: " dockername
 			docker rm -f $dockername
 			;;
 		5)
-			send_stats "지정된 컨테이너를 다시 시작합니다."
-			read -e -p "컨테이너 이름을 입력하세요(여러 컨테이너 이름을 공백으로 구분하세요)." dockername
+			send_stats "重启指定容器"
+			read -e -p "请输入容器名（多个容器名请用空格分隔）: " dockername
 			docker restart $dockername
 			;;
 		6)
@@ -557,11 +557,11 @@ while true; do
 			docker start $(docker ps -a -q)
 			;;
 		7)
-			send_stats "모든 컨테이너 중지"
+			send_stats "停止所有容器"
 			docker stop $(docker ps -q)
 			;;
 		8)
-			send_stats "모든 컨테이너 삭제"
+			send_stats "删除所有容器"
 			read -e -p "$(echo -e "${gl_hong}注意: ${gl_bai}确定删除所有容器吗？(Y/N): ")" choice
 			case "$choice" in
 			  [Yy])
@@ -570,16 +570,16 @@ while true; do
 			  [Nn])
 				;;
 			  *)
-				echo "선택이 잘못되었습니다. Y 또는 N을 입력하세요."
+				echo "无效的选择，请输入 Y 或 N。"
 				;;
 			esac
 			;;
 		9)
-			send_stats "모든 컨테이너 다시 시작"
+			send_stats "重启所有容器"
 			docker restart $(docker ps -q)
 			;;
 		11)
-			send_stats "컨테이너를 입력하세요"
+			send_stats "进入容器"
 			read -e -p "请输入容器名: " dockername
 			docker exec -it $dockername /bin/sh
 			break_end
@@ -595,7 +595,7 @@ while true; do
 			echo ""
 			container_ids=$(docker ps -q)
 			echo "------------------------------------------------------------"
-			printf "%-25s %-25s %-25s\n" "컨테이너 이름" "네트워크 이름" "IP地址"
+			printf "%-25s %-25s %-25s\n" "容器名称" "网络名称" "IP地址"
 			for container_id in $container_ids; do
 				local container_info=$(docker inspect --format '{{ .Name }}{{ range $network, $config := .NetworkSettings.Networks }} {{ $network }} {{ $config.IPAddress }}{{ end }}' "$container_id")
 				local container_name=$(echo "$container_info" | awk '{print $1}')
@@ -626,7 +626,7 @@ while true; do
 
 		16)
 			send_stats "阻止容器端口访问"
-			read -e -p "컨테이너 이름을 입력하세요:" docker_name
+			read -e -p "请输入容器名: " docker_name
 			ip_address
 			block_container_port "$docker_name" "$ipv4_address"
 			local docker_port=$(docker port $docker_name | awk -F'[:]' '/->/ {print $NF}' | uniq)
@@ -645,38 +645,38 @@ done
 docker_image() {
 while true; do
 	clear
-	send_stats "도커 이미지 관리"
-	echo "도커 이미지 목록"
+	send_stats "Docker镜像管理"
+	echo "Docker镜像列表"
 	docker image ls
 	echo ""
 	echo "镜像操作"
 	echo "------------------------"
 	echo "1. 获取指定镜像             3. 删除指定镜像"
-	echo "2. 지정된 이미지 업데이트 4. 모든 이미지 삭제"
+	echo "2. 更新指定镜像             4. 删除所有镜像"
 	echo "------------------------"
 	echo "0. 返回上一级选单"
 	echo "------------------------"
-	read -e -p "선택사항을 입력하세요:" sub_choice
+	read -e -p "请输入你的选择: " sub_choice
 	case $sub_choice in
 		1)
-			send_stats "이미지 가져오기"
-			read -e -p "이미지 이름을 입력하세요(여러 이미지 이름은 공백으로 구분하세요):" imagenames
+			send_stats "拉取镜像"
+			read -e -p "请输入镜像名（多个镜像名请用空格分隔）: " imagenames
 			for name in $imagenames; do
 				echo -e "${gl_kjlan}正在获取镜像: $name${gl_bai}"
 				docker pull $name
 			done
 			;;
 		2)
-			send_stats "이미지 업데이트"
-			read -e -p "이미지 이름을 입력하세요(여러 이미지 이름은 공백으로 구분하세요):" imagenames
+			send_stats "更新镜像"
+			read -e -p "请输入镜像名（多个镜像名请用空格分隔）: " imagenames
 			for name in $imagenames; do
-				echo -e "${gl_kjlan}이미지 업데이트 중:$name${gl_bai}"
+				echo -e "${gl_kjlan}正在更新镜像: $name${gl_bai}"
 				docker pull $name
 			done
 			;;
 		3)
-			send_stats "이미지 삭제"
-			read -e -p "이미지 이름을 입력하세요(여러 이미지 이름은 공백으로 구분하세요):" imagenames
+			send_stats "删除镜像"
+			read -e -p "请输入镜像名（多个镜像名请用空格分隔）: " imagenames
 			for name in $imagenames; do
 				docker rmi -f $name
 			done
@@ -691,7 +691,7 @@ while true; do
 			  [Nn])
 				;;
 			  *)
-				echo "선택이 잘못되었습니다. Y 또는 N을 입력하세요."
+				echo "无效的选择，请输入 Y 或 N。"
 				;;
 			esac
 			;;
@@ -734,7 +734,7 @@ install_crontab() {
 				elif command -v yum >/dev/null 2>&1; then
 					package_manager=yum
 				else
-					echo "오류: DNF/YUM을 찾을 수 없습니다. cronie를 설치할 수 없습니다."
+					echo "错误: 未找到 DNF/YUM，无法安装 cronie"
 					return 1
 				fi
 				"$package_manager" install -y cronie || return 1
@@ -769,17 +769,17 @@ install_crontab() {
 				service cron start
 				;;
 			*)
-				echo "지원되지 않는 배포판:$ID"
+				echo "不支持的发行版: $ID"
 				return
 				;;
 		esac
 	else
-		echo "운영 체제를 확인할 수 없습니다."
+		echo "无法确定操作系统。"
 		return
 	fi
 
 	command -v crontab >/dev/null 2>&1 || return 1
-	echo -e "${gl_lv}crontab이 설치되어 있고 cron 서비스가 실행 중입니다.${gl_bai}"
+	echo -e "${gl_lv}crontab 已安装且 cron 服务正在运行。${gl_bai}"
 }
 
 
@@ -791,27 +791,27 @@ docker_ipv6_on() {
 	local CONFIG_FILE="/etc/docker/daemon.json"
 	local REQUIRED_IPV6_CONFIG='{"ipv6": true, "fixed-cidr-v6": "2001:db8:1::/64"}'
 
-	# 구성 파일이 있는지 확인하고, 없으면 파일을 생성하고 기본 설정을 씁니다.
+	# 检查配置文件是否存在，如果不存在则创建文件并写入默认设置
 	if [ ! -f "$CONFIG_FILE" ]; then
 		echo "$REQUIRED_IPV6_CONFIG" | jq . > "$CONFIG_FILE"
 		restart docker
 	else
-		# jq를 사용하여 구성 파일 업데이트 처리
+		# 使用jq处理配置文件的更新
 		local ORIGINAL_CONFIG=$(<"$CONFIG_FILE")
 
-		# 현재 구성에 이미 ipv6 설정이 있는지 확인하십시오.
+		# 检查当前配置是否已经有 ipv6 设置
 		local CURRENT_IPV6=$(echo "$ORIGINAL_CONFIG" | jq '.ipv6 // false')
 
-		# 구성 업데이트 및 IPv6 활성화
+		# 更新配置，开启 IPv6
 		if [[ "$CURRENT_IPV6" == "false" ]]; then
 			UPDATED_CONFIG=$(echo "$ORIGINAL_CONFIG" | jq '. + {ipv6: true, "fixed-cidr-v6": "2001:db8:1::/64"}')
 		else
 			UPDATED_CONFIG=$(echo "$ORIGINAL_CONFIG" | jq '. + {"fixed-cidr-v6": "2001:db8:1::/64"}')
 		fi
 
-		# 원래 구성을 새 구성과 비교
+		# 对比原始配置与新配置
 		if [[ "$ORIGINAL_CONFIG" == "$UPDATED_CONFIG" ]]; then
-			echo -e "${gl_huang}현재 IPv6 액세스가 활성화되어 있습니다.${gl_bai}"
+			echo -e "${gl_huang}当前已开启ipv6访问${gl_bai}"
 		else
 			echo "$UPDATED_CONFIG" | jq . > "$CONFIG_FILE"
 			restart docker
@@ -826,28 +826,28 @@ docker_ipv6_off() {
 
 	local CONFIG_FILE="/etc/docker/daemon.json"
 
-	# 구성 파일이 있는지 확인하십시오.
+	# 检查配置文件是否存在
 	if [ ! -f "$CONFIG_FILE" ]; then
-		echo -e "${gl_hong}구성 파일이 존재하지 않습니다.${gl_bai}"
+		echo -e "${gl_hong}配置文件不存在${gl_bai}"
 		return
 	fi
 
-	# 현재 구성 읽기
+	# 读取当前配置
 	local ORIGINAL_CONFIG=$(<"$CONFIG_FILE")
 
-	# jq를 사용하여 구성 파일 업데이트 처리
+	# 使用jq处理配置文件的更新
 	local UPDATED_CONFIG=$(echo "$ORIGINAL_CONFIG" | jq 'del(.["fixed-cidr-v6"]) | .ipv6 = false')
 
-	# 현재 ipv6 상태 확인
+	# 检查当前的 ipv6 状态
 	local CURRENT_IPV6=$(echo "$ORIGINAL_CONFIG" | jq -r '.ipv6 // false')
 
-	# 원래 구성을 새 구성과 비교
+	# 对比原始配置与新配置
 	if [[ "$CURRENT_IPV6" == "false" ]]; then
-		echo -e "${gl_huang}IPv6 액세스는 현재 폐쇄되었습니다.${gl_bai}"
+		echo -e "${gl_huang}当前已关闭ipv6访问${gl_bai}"
 	else
 		echo "$UPDATED_CONFIG" | jq . > "$CONFIG_FILE"
 		restart docker
-		echo -e "${gl_huang}IPv6 액세스가 성공적으로 종료되었습니다.${gl_bai}"
+		echo -e "${gl_huang}已成功关闭ipv6访问${gl_bai}"
 	fi
 }
 
@@ -886,117 +886,117 @@ iptables_open() {
 open_port() {
 	local ports=($@)  # 将传入的参数转换为数组
 	if [ ${#ports[@]} -eq 0 ]; then
-		echo "포트 번호를 하나 이상 입력하세요."
+		echo "请提供至少一个端口号"
 		return 1
 	fi
 
 	install iptables || return 1
 
 	for port in "${ports[@]}"; do
-		# 기존 종료 규칙 삭제
+		# 删除已存在的关闭规则
 		iptables -D INPUT -p tcp --dport $port -j DROP 2>/dev/null
 		iptables -D INPUT -p udp --dport $port -j DROP 2>/dev/null
 
-		# 공개 규칙 추가
+		# 添加打开规则
 		if ! iptables -C INPUT -p tcp --dport $port -j ACCEPT 2>/dev/null; then
 			iptables -I INPUT 1 -p tcp --dport $port -j ACCEPT
 		fi
 
 		if ! iptables -C INPUT -p udp --dport $port -j ACCEPT 2>/dev/null; then
 			iptables -I INPUT 1 -p udp --dport $port -j ACCEPT
-			echo "포트가 열렸습니다.$port"
+			echo "已打开端口 $port"
 		fi
 	done
 
 	save_iptables_rules || return 1
-	send_stats "포트가 열렸습니다."
+	send_stats "已打开端口"
 }
 
 
 close_port() {
 	local ports=($@)  # 将传入的参数转换为数组
 	if [ ${#ports[@]} -eq 0 ]; then
-		echo "포트 번호를 하나 이상 입력하세요."
+		echo "请提供至少一个端口号"
 		return 1
 	fi
 
 	install iptables
 
 	for port in "${ports[@]}"; do
-		# 기존 공개 규칙 삭제
+		# 删除已存在的打开规则
 		iptables -D INPUT -p tcp --dport $port -j ACCEPT 2>/dev/null
 		iptables -D INPUT -p udp --dport $port -j ACCEPT 2>/dev/null
 
-		# 종료 규칙 추가
+		# 添加关闭规则
 		if ! iptables -C INPUT -p tcp --dport $port -j DROP 2>/dev/null; then
 			iptables -I INPUT 1 -p tcp --dport $port -j DROP
 		fi
 
 		if ! iptables -C INPUT -p udp --dport $port -j DROP 2>/dev/null; then
 			iptables -I INPUT 1 -p udp --dport $port -j DROP
-			echo "항구 폐쇄$port"
+			echo "已关闭端口 $port"
 		fi
 	done
 
-	# 기존 규칙 삭제(있는 경우)
+	# 删除已存在的规则（如果有）
 	iptables -D INPUT -i lo -j ACCEPT 2>/dev/null
 	iptables -D FORWARD -i lo -j ACCEPT 2>/dev/null
 
-	# 첫 번째 규칙에 새 규칙을 삽입합니다.
+	# 插入新规则到第一条
 	iptables -I INPUT 1 -i lo -j ACCEPT
 	iptables -I FORWARD 1 -i lo -j ACCEPT
 
 	save_iptables_rules
-	send_stats "항구 폐쇄"
+	send_stats "已关闭端口"
 }
 
 
 allow_ip() {
 	local ips=($@)  # 将传入的参数转换为数组
 	if [ ${#ips[@]} -eq 0 ]; then
-		echo "IP 주소 또는 IP 세그먼트를 하나 이상 입력하세요."
+		echo "请提供至少一个IP地址或IP段"
 		return 1
 	fi
 
 	install iptables
 
 	for ip in "${ips[@]}"; do
-		# 기존 차단 규칙 삭제
+		# 删除已存在的阻止规则
 		iptables -D INPUT -s $ip -j DROP 2>/dev/null
 
-		# 허용 규칙 추가
+		# 添加允许规则
 		if ! iptables -C INPUT -s $ip -j ACCEPT 2>/dev/null; then
 			iptables -I INPUT 1 -s $ip -j ACCEPT
-			echo "공개된 IP$ip"
+			echo "已放行IP $ip"
 		fi
 	done
 
 	save_iptables_rules
-	send_stats "공개된 IP"
+	send_stats "已放行IP"
 }
 
 block_ip() {
 	local ips=($@)  # 将传入的参数转换为数组
 	if [ ${#ips[@]} -eq 0 ]; then
-		echo "IP 주소 또는 IP 세그먼트를 하나 이상 입력하세요."
+		echo "请提供至少一个IP地址或IP段"
 		return 1
 	fi
 
 	install iptables
 
 	for ip in "${ips[@]}"; do
-		# 기존 허용 규칙 삭제
+		# 删除已存在的允许规则
 		iptables -D INPUT -s $ip -j ACCEPT 2>/dev/null
 
-		# 차단 규칙 추가
+		# 添加阻止规则
 		if ! iptables -C INPUT -s $ip -j DROP 2>/dev/null; then
 			iptables -I INPUT 1 -s $ip -j DROP
-			echo "IP가 차단됨$ip"
+			echo "已阻止IP $ip"
 		fi
 	done
 
 	save_iptables_rules
-	send_stats "IP가 차단됨"
+	send_stats "已阻止IP"
 }
 
 
@@ -1006,7 +1006,7 @@ block_ip() {
 
 
 enable_ddos_defense() {
-	# DDoS 보호 켜기
+	# 开启防御 DDoS
 	iptables -A DOCKER-USER -p tcp --syn -m limit --limit 500/s --limit-burst 100 -j ACCEPT
 	iptables -A DOCKER-USER -p tcp --syn -j DROP
 	iptables -A DOCKER-USER -p udp -m limit --limit 3000/s -j ACCEPT
@@ -1016,12 +1016,12 @@ enable_ddos_defense() {
 	iptables -A INPUT -p udp -m limit --limit 3000/s -j ACCEPT
 	iptables -A INPUT -p udp -j DROP
 
-	send_stats "DDoS 방어 켜기"
+	send_stats "开启DDoS防御"
 }
 
-# DDoS 방어 끄기
+# 关闭DDoS防御
 disable_ddos_defense() {
-	# DDoS 보호 끄기
+	# 关闭防御 DDoS
 	iptables -D DOCKER-USER -p tcp --syn -m limit --limit 500/s --limit-burst 100 -j ACCEPT 2>/dev/null
 	iptables -D DOCKER-USER -p tcp --syn -j DROP 2>/dev/null
 	iptables -D DOCKER-USER -p udp -m limit --limit 3000/s -j ACCEPT 2>/dev/null
@@ -1031,14 +1031,14 @@ disable_ddos_defense() {
 	iptables -D INPUT -p udp -m limit --limit 3000/s -j ACCEPT 2>/dev/null
 	iptables -D INPUT -p udp -j DROP 2>/dev/null
 
-	send_stats "DDoS 방어 끄기"
+	send_stats "关闭DDoS防御"
 }
 
 
 
 
 
-# 국가 IP 규칙을 관리하는 기능
+# 管理国家IP规则的函数
 manage_country_rules() {
 	local action="$1"
 	shift  # 去掉第一个参数，剩下的全是国家代码
@@ -1056,7 +1056,7 @@ manage_country_rules() {
 				fi
 
 				if ! wget -q "$download_url" -O "${country_code,,}.zone"; then
-					echo "오류: 다운로드$country_codeIP 영역 파일 실패"
+					echo "错误：下载 $country_code 的 IP 区域文件失败"
 					continue
 				fi
 
@@ -1066,7 +1066,7 @@ manage_country_rules() {
 
 				iptables -I INPUT -m set --match-set "$ipset_name" src -j DROP
 
-				echo "성공적으로 차단되었습니다$country_codeIP 주소"
+				echo "已成功阻止 $country_code 的 IP 地址"
 				rm "${country_code,,}.zone"
 				;;
 
@@ -1076,7 +1076,7 @@ manage_country_rules() {
 				fi
 
 				if ! wget -q "$download_url" -O "${country_code,,}.zone"; then
-					echo "오류: 다운로드$country_codeIP 영역 파일 실패"
+					echo "错误：下载 $country_code 的 IP 区域文件失败"
 					continue
 				fi
 
@@ -1089,7 +1089,7 @@ manage_country_rules() {
 				iptables -P INPUT DROP
 				iptables -A INPUT -m set --match-set "$ipset_name" src -j ACCEPT
 
-				echo "허용되었습니다.$country_codeIP 주소"
+				echo "已成功允许 $country_code 的 IP 地址"
 				rm "${country_code,,}.zone"
 				;;
 
@@ -1100,11 +1100,11 @@ manage_country_rules() {
 					ipset destroy "$ipset_name"
 				fi
 
-				echo "성공적으로 제거되었습니다$country_codeIP 주소 제한"
+				echo "已成功解除 $country_code 的 IP 地址限制"
 				;;
 
 			*)
-				echo "사용법: prepare_country_rules {block|allow|unblock} <country_code...>"
+				echo "用法: manage_country_rules {block|allow|unblock} <country_code...>"
 				;;
 		esac
 	done
@@ -1125,29 +1125,29 @@ iptables_panel() {
   save_iptables_rules
   while true; do
 		  clear
-		  echo "고급 방화벽 관리"
-		  send_stats "고급 방화벽 관리"
+		  echo "高级防火墙管理"
+		  send_stats "高级防火墙管理"
 		  echo "------------------------"
 		  iptables -L INPUT
 		  echo ""
-		  echo "방화벽 관리"
+		  echo "防火墙管理"
 		  echo "------------------------"
 		  echo "1.  开放指定端口                 2.  关闭指定端口"
 		  echo "3.  开放所有端口                 4.  关闭所有端口"
 		  echo "------------------------"
-		  echo "5. IP 화이트리스트 6. IP 블랙리스트"
+		  echo "5.  IP白名单                  	 6.  IP黑名单"
 		  echo "7.  清除指定IP"
 		  echo "------------------------"
 		  echo "11. 允许PING                  	 12. 禁止PING"
 		  echo "------------------------"
-		  echo "13. DDOS 방어 시작 14. DDOS 방어 끄기"
+		  echo "13. 启动DDOS防御                 14. 关闭DDOS防御"
 		  echo "------------------------"
-		  echo "15. 특정 국가 IP 차단 16. 특정 국가 IP만 허용"
+		  echo "15. 阻止指定国家IP               16. 仅允许指定国家IP"
 		  echo "17. 解除指定国家IP限制"
 		  echo "------------------------"
 		  echo "0. 返回上一级选单"
 		  echo "------------------------"
-		  read -e -p "선택사항을 입력하세요:" sub_choice
+		  read -e -p "请输入你的选择: " sub_choice
 		  case $sub_choice in
 			  1)
 				  read -e -p "请输入开放的端口号: " o_port
@@ -1173,7 +1173,7 @@ iptables_panel() {
 				  iptables -A FORWARD -i lo -j ACCEPT
 				  iptables -A INPUT -p tcp --dport $current_port -j ACCEPT
 				  iptables-save > /etc/iptables/rules.v4
-				  send_stats "모든 포트 열기"
+				  send_stats "开放所有端口"
 				  ;;
 			  4)
 				  # 关闭所有端口
@@ -1232,7 +1232,7 @@ iptables_panel() {
 				  ;;
 
 			  15)
-				  read -e -p "차단된 국가 코드를 입력하세요(여러 국가 코드는 CN US JP와 같이 공백으로 구분될 수 있음)." country_code
+				  read -e -p "请输入阻止的国家代码（多个国家代码可用空格隔开如 CN US JP）: " country_code
 				  manage_country_rules block $country_code
 				  send_stats "允许国家 $country_code 的IP"
 				  ;;
@@ -1796,7 +1796,7 @@ nginx_upgrade() {
   docker restart $ldnmp_pods > /dev/null 2>&1
 
   send_stats "更新$ldnmp_pods"
-  echo "고쳐 쓰다${ldnmp_pods}完成"
+  echo "更新${ldnmp_pods}完成"
 
 }
 
@@ -1819,7 +1819,7 @@ phpmyadmin_upgrade() {
   echo "用户名: $dbuse"
   echo "密码: $dbusepasswd"
   echo
-  send_stats "시작하다$ldnmp_pods"
+  send_stats "启动$ldnmp_pods"
 }
 
 
@@ -1836,12 +1836,12 @@ cf_purge_cache() {
 	# 将 ZONE_IDS 转换为数组
 	ZONE_IDS=($ZONE_IDS)
   else
-	# 캐시를 지울지 여부를 사용자에게 묻습니다.
-	read -e -p "Cloudflare의 캐시를 지워야 합니까? (예/아니요):" answer
+	# 提示用户是否清理缓存
+	read -e -p "需要清理 Cloudflare 的缓存吗？（y/n）: " answer
 	if [[ "$answer" == "y" ]]; then
-	  echo "CF 정보는 다음 위치에 저장됩니다.$CONFIG_FILE, 나중에 CF 정보를 수정할 수 있습니다."
-	  read -e -p "API_TOKEN을 입력하세요:" API_TOKEN
-	  read -e -p "CF 사용자 이름을 입력하세요:" EMAIL
+	  echo "CF信息保存在$CONFIG_FILE，可以后期修改CF信息"
+	  read -e -p "请输入你的 API_TOKEN: " API_TOKEN
+	  read -e -p "请输入你的CF用户名: " EMAIL
 	  read -e -p "请输入 zone_id（多个用空格分隔）: " -a ZONE_IDS
 
 	  mkdir -p /home/web/config/
@@ -1859,13 +1859,13 @@ cf_purge_cache() {
 	--data '{"purge_everything":true}'
   done
 
-  echo "캐시 삭제 요청이 전송되었습니다."
+  echo "缓存清除请求已发送完毕。"
 }
 
 
 
 web_cache() {
-  send_stats "사이트 캐시 지우기"
+  send_stats "清理站点缓存"
   cf_purge_cache
   cd /home/web && docker compose restart
 }
@@ -1896,18 +1896,18 @@ web_del() {
 			continue
 		fi
 
-		echo "도메인 이름을 삭제하는 중입니다:$yuming"
+		echo "正在删除域名: $yuming"
 		rm -rf -- "/home/web/html/$yuming" > /dev/null 2>&1
 		rm -f -- "/home/web/conf.d/$yuming.conf" > /dev/null 2>&1
 		rm -f -- "/home/web/certs/${yuming}_key.pem" > /dev/null 2>&1
 		rm -f -- "/home/web/certs/${yuming}_cert.pem" > /dev/null 2>&1
 
-		# 도메인 이름을 데이터베이스 이름으로 변환
+		# 将域名转换为数据库名
 		dbname=$(echo "$yuming" | sed -e 's/[^A-Za-z0-9]/_/g')
 		if [ -f /home/web/docker-compose.yml ] &&
 			docker inspect mysql > /dev/null 2>&1; then
 			dbrootpasswd=$(grep -oP 'MYSQL_ROOT_PASSWORD:\s*\K.*' /home/web/docker-compose.yml | tr -d '[:space:]')
-			echo "데이터베이스 삭제 중:$dbname"
+			echo "正在删除数据库: $dbname"
 			if docker exec mysql mysql -u root -p"$dbrootpasswd" \
 				-e "DROP DATABASE IF EXISTS \`${dbname}\`;" > /dev/null 2>&1; then
 				echo "KPANEL_DELETE_DATABASE dropped $yuming"
@@ -1923,7 +1923,7 @@ web_del() {
 			[ -e "/home/web/conf.d/$yuming.conf" ] ||
 			[ -e "/home/web/certs/${yuming}_key.pem" ] ||
 			[ -e "/home/web/certs/${yuming}_cert.pem" ]; then
-			echo "사이트 제품 삭제가 완료되지 않았습니다.$yuming"
+			echo "站点产物删除不完整: $yuming"
 			action_status=1
 		else
 			echo "KPANEL_DELETE_SITE deleted $yuming"
@@ -1933,7 +1933,7 @@ web_del() {
 	if docker inspect nginx > /dev/null 2>&1; then
 		if ! docker exec nginx nginx -t > /dev/null 2>&1 ||
 			! docker exec nginx nginx -s reload; then
-			echo "Nginx 구성 확인 또는 다시 로드에 실패했습니다."
+			echo "Nginx 配置验证或重载失败"
 			action_status=1
 		fi
 	else
@@ -1953,21 +1953,21 @@ nginx_waf() {
 
 	# 根据 mode 参数来决定开启或关闭 WAF
 	if [ "$mode" == "on" ]; then
-		# WAF 켜기: 댓글 제거
+		# 开启 WAF：去掉注释
 		sed -i 's|# load_module /etc/nginx/modules/ngx_http_modsecurity_module.so;|load_module /etc/nginx/modules/ngx_http_modsecurity_module.so;|' /home/web/nginx.conf > /dev/null 2>&1
 		sed -i 's|^\(\s*\)# modsecurity on;|\1modsecurity on;|' /home/web/nginx.conf > /dev/null 2>&1
 		sed -i 's|^\(\s*\)# modsecurity_rules_file /etc/nginx/modsec/modsecurity.conf;|\1modsecurity_rules_file /etc/nginx/modsec/modsecurity.conf;|' /home/web/nginx.conf > /dev/null 2>&1
 	elif [ "$mode" == "off" ]; then
-		# WAF 끄기: 댓글 추가
+		# 关闭 WAF：加上注释
 		sed -i 's|^load_module /etc/nginx/modules/ngx_http_modsecurity_module.so;|# load_module /etc/nginx/modules/ngx_http_modsecurity_module.so;|' /home/web/nginx.conf > /dev/null 2>&1
 		sed -i 's|^\(\s*\)modsecurity on;|\1# modsecurity on;|' /home/web/nginx.conf > /dev/null 2>&1
 		sed -i 's|^\(\s*\)modsecurity_rules_file /etc/nginx/modsec/modsecurity.conf;|\1# modsecurity_rules_file /etc/nginx/modsec/modsecurity.conf;|' /home/web/nginx.conf > /dev/null 2>&1
 	else
-		echo "잘못된 인수: 'on' 또는 'off'를 사용하세요."
+		echo "无效的参数：使用 'on' 或 'off'"
 		return 1
 	fi
 
-	# nginx 이미지를 확인하고 그에 따라 처리하세요.
+	# 检查 nginx 镜像并根据情况处理
 	if grep -q "kjlion/nginx:alpine" /home/web/docker-compose.yml; then
 		docker exec nginx nginx -s reload
 	else
@@ -1981,7 +1981,7 @@ check_waf_status() {
 	if grep -q "^\s*#\s*modsecurity on;" /home/web/nginx.conf; then
 		waf_status=""
 	elif grep -q "modsecurity on;" /home/web/nginx.conf; then
-		waf_status="WAF가 켜져 있습니다."
+		waf_status=" WAF已开启"
 	else
 		waf_status=""
 	fi
@@ -1990,7 +1990,7 @@ check_waf_status() {
 
 check_cf_mode() {
 	if [ -f "/etc/fail2ban/action.d/cloudflare-docker.conf" ]; then
-		CFmessage="cf 모드가 켜져 있습니다"
+		CFmessage=" cf模式已开启"
 	else
 		CFmessage=""
 	fi
@@ -2014,11 +2014,11 @@ patch_wp_memory_limit() {
   local TARGET_DIR="/home/web/html"    # 路径写死
 
   find "$TARGET_DIR" -type f -name "wp-config.php" | while read -r FILE; do
-	# 이전 정의 삭제
+	# 删除旧定义
 	sed -i "/define(['\"]WP_MEMORY_LIMIT['\"].*/d" "$FILE"
 	sed -i "/define(['\"]WP_MAX_MEMORY_LIMIT['\"].*/d" "$FILE"
 
-	# "HappyPublishing"이 포함된 줄 앞에 새 정의를 삽입합니다.
+	# 插入新定义，放在含 "Happy publishing" 的行前
 	awk -v insert="define('WP_MEMORY_LIMIT', '$MEMORY_LIMIT');\ndefine('WP_MAX_MEMORY_LIMIT', '$MAX_MEMORY_LIMIT');" \
 	'
 	  /Happy publishing/ {
@@ -2041,12 +2041,12 @@ patch_wp_debug() {
   local TARGET_DIR="/home/web/html"   # 路径写死
 
   find "$TARGET_DIR" -type f -name "wp-config.php" | while read -r FILE; do
-	# 이전 정의 삭제
+	# 删除旧定义
 	sed -i "/define(['\"]WP_DEBUG['\"].*/d" "$FILE"
 	sed -i "/define(['\"]WP_DEBUG_DISPLAY['\"].*/d" "$FILE"
 	sed -i "/define(['\"]WP_DEBUG_LOG['\"].*/d" "$FILE"
 
-	# "HappyPublishing"이 포함된 줄 앞에 새 정의를 삽입합니다.
+	# 插入新定义，放在含 "Happy publishing" 的行前
 	awk -v insert="define('WP_DEBUG_DISPLAY', $DEBUG_DISPLAY);\ndefine('WP_DEBUG_LOG', $DEBUG_LOG);" \
 	'
 	  /Happy publishing/ {
@@ -2068,17 +2068,17 @@ patch_wp_url() {
   local TARGET_DIR="/home/web/html"
 
   find "$TARGET_DIR" -type f -name "wp-config-sample.php" | while read -r FILE; do
-	# 이전 정의 삭제
+	# 删除旧定义
 	sed -i "/define(['\"]WP_HOME['\"].*/d" "$FILE"
 	sed -i "/define(['\"]WP_SITEURL['\"].*/d" "$FILE"
 
-	# 삽입 콘텐츠 생성
+	# 生成插入内容
 	INSERT="
 define('WP_HOME', '$HOME_URL');
 define('WP_SITEURL', '$SITE_URL');
 "
 
-	# '행복한 출판' 앞에 삽입
+	# 插入到 “Happy publishing” 之前
 	awk -v insert="$INSERT" '
 	  /Happy publishing/ {
 		print insert
@@ -2106,7 +2106,7 @@ nginx_br() {
 	fi
 
 	if [ "$mode" == "on" ]; then
-		# Brotli 켜기: 댓글 제거
+		# 开启 Brotli：去掉注释
 		sed -i 's|# load_module /etc/nginx/modules/ngx_http_brotli_filter_module.so;|load_module /etc/nginx/modules/ngx_http_brotli_filter_module.so;|' /home/web/nginx.conf > /dev/null 2>&1
 		sed -i 's|# load_module /etc/nginx/modules/ngx_http_brotli_static_module.so;|load_module /etc/nginx/modules/ngx_http_brotli_static_module.so;|' /home/web/nginx.conf > /dev/null 2>&1
 
@@ -2120,7 +2120,7 @@ nginx_br() {
 		sed -i '/brotli_types/,+6 s/^\(\s*\)#\s*/\1/' /home/web/nginx.conf
 
 	elif [ "$mode" == "off" ]; then
-		# Brotli 닫기: 댓글 추가
+		# 关闭 Brotli：加上注释
 		sed -i 's|^load_module /etc/nginx/modules/ngx_http_brotli_filter_module.so;|# load_module /etc/nginx/modules/ngx_http_brotli_filter_module.so;|' /home/web/nginx.conf > /dev/null 2>&1
 		sed -i 's|^load_module /etc/nginx/modules/ngx_http_brotli_static_module.so;|# load_module /etc/nginx/modules/ngx_http_brotli_static_module.so;|' /home/web/nginx.conf > /dev/null 2>&1
 
@@ -2136,11 +2136,11 @@ nginx_br() {
 		}' /home/web/nginx.conf
 
 	else
-		echo "잘못된 인수: 'on' 또는 'off'를 사용하세요."
+		echo "无效的参数：使用 'on' 或 'off'"
 		return 1
 	fi
 
-	# nginx 이미지를 확인하고 그에 따라 처리하세요.
+	# 检查 nginx 镜像并根据情况处理
 	if grep -q "kjlion/nginx:alpine" /home/web/docker-compose.yml; then
 		docker exec nginx nginx -s reload
 	else
@@ -2162,7 +2162,7 @@ nginx_zstd() {
 	fi
 
 	if [ "$mode" == "on" ]; then
-		# Zstd 켜기: 주석 제거
+		# 开启 Zstd：去掉注释
 		sed -i 's|# load_module /etc/nginx/modules/ngx_http_zstd_filter_module.so;|load_module /etc/nginx/modules/ngx_http_zstd_filter_module.so;|' /home/web/nginx.conf > /dev/null 2>&1
 		sed -i 's|# load_module /etc/nginx/modules/ngx_http_zstd_static_module.so;|load_module /etc/nginx/modules/ngx_http_zstd_static_module.so;|' /home/web/nginx.conf > /dev/null 2>&1
 
@@ -2177,7 +2177,7 @@ nginx_zstd() {
 
 
 	elif [ "$mode" == "off" ]; then
-		# Zstd 닫기: 설명 추가
+		# 关闭 Zstd：加上注释
 		sed -i 's|^load_module /etc/nginx/modules/ngx_http_zstd_filter_module.so;|# load_module /etc/nginx/modules/ngx_http_zstd_filter_module.so;|' /home/web/nginx.conf > /dev/null 2>&1
 		sed -i 's|^load_module /etc/nginx/modules/ngx_http_zstd_static_module.so;|# load_module /etc/nginx/modules/ngx_http_zstd_static_module.so;|' /home/web/nginx.conf > /dev/null 2>&1
 
@@ -2193,11 +2193,11 @@ nginx_zstd() {
 
 
 	else
-		echo "잘못된 인수: 'on' 또는 'off'를 사용하세요."
+		echo "无效的参数：使用 'on' 或 'off'"
 		return 1
 	fi
 
-	# nginx 이미지를 확인하고 그에 따라 처리하세요.
+	# 检查 nginx 镜像并根据情况处理
 	if grep -q "kjlion/nginx:alpine" /home/web/docker-compose.yml; then
 		docker exec nginx nginx -s reload
 	else
@@ -2224,7 +2224,7 @@ nginx_gzip() {
 	elif [ "$mode" == "off" ]; then
 		sed -i 's|^\(\s*\)gzip on;|\1# gzip on;|' /home/web/nginx.conf > /dev/null 2>&1
 	else
-		echo "잘못된 인수: 'on' 또는 'off'를 사용하세요."
+		echo "无效的参数：使用 'on' 或 'off'"
 		return 1
 	fi
 
@@ -2238,31 +2238,31 @@ nginx_gzip() {
 
 
 web_security() {
-	  send_stats "LDNMP 환경 방어"
+	  send_stats "LDNMP环境防御"
 	  while true; do
 		check_f2b_status
 		check_waf_status
 		check_cf_mode
 			  clear
-			  echo -e "서버 웹사이트 방어 프로그램${check_f2b_status}${gl_lv}${CFmessage}${waf_status}${gl_bai}"
+			  echo -e "服务器网站防御程序 ${check_f2b_status}${gl_lv}${CFmessage}${waf_status}${gl_bai}"
 			  echo "------------------------"
-			  echo "1. 방어 프로그램 설치"
+			  echo "1. 安装防御程序"
 			  echo "------------------------"
-			  echo "5. SSH 차단 기록 보기 6. 웹사이트 차단 기록 보기"
-			  echo "7. 방어규칙 목록 보기 8. 실시간 모니터링을 위한 로그 보기"
+			  echo "5. 查看SSH拦截记录                6. 查看网站拦截记录"
+			  echo "7. 查看防御规则列表               8. 查看日志实时监控"
 			  echo "------------------------"
-			  echo "11. 차단 매개변수 구성 12. 차단된 IP 모두 삭제"
+			  echo "11. 配置拦截参数                  12. 清除所有拉黑的IP"
 			  echo "------------------------"
-			  echo "21. cloudflare 모드 22. 고부하에서 5초 보호 활성화"
+			  echo "21. cloudflare模式                22. 高负载开启5秒盾"
 			  echo "------------------------"
-			  echo "31. WAF 켜기 32. WAF 끄기"
-			  echo "33. DDOS 방어 켜기 34. DDOS 방어 끄기"
+			  echo "31. 开启WAF                       32. 关闭WAF"
+			  echo "33. 开启DDOS防御                  34. 关闭DDOS防御"
 			  echo "------------------------"
-			  echo "9. 방어 프로그램 제거"
+			  echo "9. 卸载防御程序"
 			  echo "------------------------"
-			  echo "0. 이전 메뉴로 돌아가기"
+			  echo "0. 返回上一级选单"
 			  echo "------------------------"
-			  read -e -p "선택사항을 입력하세요:" sub_choice
+			  read -e -p "请输入你的选择: " sub_choice
 			  case $sub_choice in
 				  1)
 					  f2b_install_sshd
@@ -2327,7 +2327,7 @@ web_security() {
 					  remove fail2ban
 					  rm -rf /etc/fail2ban
 					  crontab -l | grep -v "CF-Under-Attack.sh" | crontab - 2>/dev/null
-					  echo "Fail2Ban 방어 프로그램이 제거되었습니다."
+					  echo "Fail2Ban防御程序已卸载"
 					  break
 					  ;;
 
@@ -2343,11 +2343,11 @@ web_security() {
 					  ;;
 
 				  21)
-					  send_stats "클라우드플레어 모드"
-					  echo "cf 백엔드 오른쪽 상단에 있는 내 프로필로 이동하여 왼쪽에 있는 API 토큰을 선택하고 글로벌 API 키를 받으세요."
+					  send_stats "cloudflare模式"
+					  echo "到cf后台右上角我的个人资料，选择左侧API令牌，获取Global API Key"
 					  echo "https://dash.cloudflare.com/login"
-					  read -e -p "CF의 계좌번호를 입력하세요:" cfuser
-					  read -e -p "CF의 글로벌 API 키를 입력하세요:" cftoken
+					  read -e -p "输入CF的账号: " cfuser
+					  read -e -p "输入CF的Global API Key: " cftoken
 
 					  wget -O /home/web/conf.d/default.conf ${gh_proxy}raw.githubusercontent.com/kejilion/nginx/main/default11.conf
 					  docker exec nginx nginx -s reload
@@ -2362,21 +2362,21 @@ web_security() {
 					  sed -i "s/APIKEY00000/$cftoken/g" /etc/fail2ban/action.d/cloudflare-docker.conf
 					  f2b_status
 
-					  echo "Cloudflare 모드가 구성되었으며, 차단 기록은 cf 백그라운드, site-security-events에서 볼 수 있습니다."
+					  echo "已配置cloudflare模式，可在cf后台，站点-安全性-事件中查看拦截记录"
 					  ;;
 
 				  22)
-					  send_stats "고부하로 5초 쉴드 가능"
-					  echo -e "${gl_huang}웹사이트는 5분마다 자동으로 감지합니다. 높은 부하를 감지하면 자동으로 쉴드가 열리고, 낮은 부하가 감지되면 자동으로 5초 동안 쉴드가 닫힙니다.${gl_bai}"
+					  send_stats "高负载开启5秒盾"
+					  echo -e "${gl_huang}网站每5分钟自动检测，当达检测到高负载会自动开盾，低负载也会自动关闭5秒盾。${gl_bai}"
 					  echo "--------------"
-					  echo "CF 매개변수 가져오기:"
-					  echo -e "cf 백엔드 오른쪽 상단에 있는 내 프로필로 이동하여 왼쪽에 있는 API 토큰을 선택하고${gl_huang}Global API Key${gl_bai}"
-					  echo -e "cf 백엔드 도메인 이름 요약 페이지 오른쪽 하단으로 이동하여 가져오세요.${gl_huang}지역 ID${gl_bai}"
+					  echo "获取CF参数: "
+					  echo -e "到cf后台右上角我的个人资料，选择左侧API令牌，获取${gl_huang}Global API Key${gl_bai}"
+					  echo -e "到cf后台域名概要页面右下方获取${gl_huang}区域ID${gl_bai}"
 					  echo "https://dash.cloudflare.com/login"
 					  echo "--------------"
-					  read -e -p "CF의 계좌번호를 입력하세요:" cfuser
-					  read -e -p "CF의 글로벌 API 키를 입력하세요:" cftoken
-					  read -e -p "CF에 도메인 이름의 영역 ID를 입력하세요." cfzonID
+					  read -e -p "输入CF的账号: " cfuser
+					  read -e -p "输入CF的Global API Key: " cftoken
+					  read -e -p "输入CF中域名的区域ID: " cfzonID
 
 					  cd ~
 					  install jq bc
@@ -2393,23 +2393,23 @@ web_security() {
 
 					  if [ -z "$existing_cron" ]; then
 						  (crontab -l 2>/dev/null; echo "$cron_job") | crontab -
-						  echo "고부하 자동 쉴드 오픈 스크립트가 추가되었습니다."
+						  echo "高负载自动开盾脚本已添加"
 					  else
-						  echo "자동 방패 열기 스크립트가 이미 있으므로 추가할 필요가 없습니다."
+						  echo "自动开盾脚本已存在，无需添加"
 					  fi
 
 					  ;;
 
 				  31)
 					  nginx_waf on
-					  echo "사이트 WAF가 활성화되었습니다"
-					  send_stats "사이트 WAF가 활성화되었습니다"
+					  echo "站点WAF已开启"
+					  send_stats "站点WAF已开启"
 					  ;;
 
 				  32)
 				  	  nginx_waf off
-					  echo "사이트 WAF가 다운되었습니다"
-					  send_stats "사이트 WAF가 다운되었습니다"
+					  echo "站点WAF已关闭"
+					  send_stats "站点WAF已关闭"
 					  ;;
 
 				  33)
@@ -2435,11 +2435,11 @@ check_ldnmp_mode() {
 	local MYSQL_CONTAINER="mysql"
 	local MYSQL_CONF="/etc/mysql/conf.d/custom_mysql_config.cnf"
 
-	# MySQL 구성 파일에 4096M이 포함되어 있는지 확인하세요.
+	# 检查 MySQL 配置文件中是否包含 4096M
 	if docker exec "$MYSQL_CONTAINER" grep -q "4096M" "$MYSQL_CONF" 2>/dev/null; then
-		mode_info="고성능 모드"
+		mode_info=" 高性能模式"
 	else
-		mode_info="표준 모드"
+		mode_info=" 标准模式"
 	fi
 
 
@@ -2451,23 +2451,23 @@ check_nginx_compression() {
 
 	local CONFIG_FILE="/home/web/nginx.conf"
 
-	# zstd가 켜져 있고 주석 처리가 해제되어 있는지 확인하세요. (전체 줄은 zstd on으로 시작됩니다.)
+	# 检查 zstd 是否开启且未被注释（整行以 zstd on; 开头）
 	if grep -qE '^\s*zstd\s+on;' "$CONFIG_FILE"; then
-		zstd_status="zstd 압축이 활성화되었습니다"
+		zstd_status=" zstd压缩已开启"
 	else
 		zstd_status=""
 	fi
 
-	# brotli가 활성화되어 있고 주석 처리가 해제되어 있는지 확인하세요.
+	# 检查 brotli 是否开启且未被注释
 	if grep -qE '^\s*brotli\s+on;' "$CONFIG_FILE"; then
-		br_status="br압축이 켜져 있습니다"
+		br_status=" br压缩已开启"
 	else
 		br_status=""
 	fi
 
-	# gzip이 활성화되어 있고 주석 처리가 해제되어 있는지 확인하세요.
+	# 检查 gzip 是否开启且未被注释
 	if grep -qE '^\s*gzip\s+on;' "$CONFIG_FILE"; then
-		gzip_status="gzip 압축이 켜져 있습니다"
+		gzip_status=" gzip压缩已开启"
 	else
 		gzip_status=""
 	fi
@@ -2488,7 +2488,7 @@ ldnmp_optimization_mode() {
 			mysql_source="custom_mysql_config.cnf"
 			;;
 		*)
-			echo "지원되지 않는 LDNMP 최적화 모드" >&2
+			echo "不支持的 LDNMP 优化模式" >&2
 			return 2
 			;;
 	esac
@@ -2527,10 +2527,10 @@ ldnmp_optimization_mode() {
 	cd /home/web && docker compose restart || return 1
 	if [ "$mode" = high ]; then
 		optimize_web_server
-		echo "LDNMP 환경이 고성능 모드로 설정되었습니다."
+		echo "LDNMP环境已设置成 高性能模式"
 	else
 		optimize_balanced
-		echo "LDNMP 환경이 표준 모드로 설정되었습니다."
+		echo "LDNMP环境已设置成 标准模式"
 	fi
 }
 
@@ -2539,25 +2539,25 @@ web_optimization() {
 		  	  check_ldnmp_mode
 			  check_nginx_compression
 			  clear
-			  send_stats "LDNMP 환경 최적화"
-			  echo -e "LDNMP 환경 최적화${gl_lv}${mode_info}${gzip_status}${br_status}${zstd_status}${gl_bai}"
+			  send_stats "优化LDNMP环境"
+			  echo -e "优化LDNMP环境${gl_lv}${mode_info}${gzip_status}${br_status}${zstd_status}${gl_bai}"
 			  echo "------------------------"
-			  echo "1. 표준 모드 2. 고성능 모드(2H4G 이상 권장)"
+			  echo "1. 标准模式              2. 高性能模式 (推荐2H4G以上)"
 			  echo "------------------------"
-			  echo "3. gzip 압축 켜기 4. gzip 압축 끄기"
-			  echo "5. br 압축을 켭니다. 6. br 압축을 끕니다."
-			  echo "7. zstd 압축을 켭니다. 8. zstd 압축을 끕니다."
+			  echo "3. 开启gzip压缩          4. 关闭gzip压缩"
+			  echo "5. 开启br压缩            6. 关闭br压缩"
+			  echo "7. 开启zstd压缩          8. 关闭zstd压缩"
 			  echo "------------------------"
-			  echo "0. 이전 메뉴로 돌아가기"
+			  echo "0. 返回上一级选单"
 			  echo "------------------------"
-			  read -e -p "선택사항을 입력하세요:" sub_choice
+			  read -e -p "请输入你的选择: " sub_choice
 			  case $sub_choice in
 				  1)
-				  send_stats "사이트 표준 모드"
+				  send_stats "站点标准模式"
 				  ldnmp_optimization_mode standard
 					  ;;
 				  2)
-				  send_stats "사이트 고성능 모드"
+				  send_stats "站点高性能模式"
 				  ldnmp_optimization_mode high
 					  ;;
 				  3)
@@ -2606,9 +2606,9 @@ web_optimization() {
 
 check_docker_app() {
 	if docker ps -a --format '{{.Names}}' 2>/dev/null | grep -q "$docker_name" ; then
-		check_docker="${gl_lv}설치됨${gl_bai}"
+		check_docker="${gl_lv}已安装${gl_bai}"
 	else
-		check_docker="${gl_hui}설치되지 않음${gl_bai}"
+		check_docker="${gl_hui}未安装${gl_bai}"
 	fi
 }
 
@@ -2617,9 +2617,9 @@ check_docker_app() {
 # check_docker_app() {
 
 # if docker ps -a --format '{{.Names}}' 2>/dev/null | grep -q "$docker_name"; then
-# check_docker="${gl_lv}가 ${gl_bai}를 설치했습니다."
+# check_docker="${gl_lv}已安装${gl_bai}"
 # else
-# check_docker="${gl_hui}이(가) ${gl_bai}" 설치되지 않았습니다.
+# check_docker="${gl_hui}未安装${gl_bai}"
 # fi
 
 # }
@@ -2627,7 +2627,7 @@ check_docker_app() {
 
 check_docker_app_ip() {
 echo "------------------------"
-echo "방문 주소:"
+echo "访问地址:"
 ip_address
 
 
@@ -2659,7 +2659,7 @@ check_docker_image_update() {
 	local container_name=$1
 	update_status=""
 
-	# 1. 컨테이너 및 로컬 이미지 정보를 획득합니다. 더 이상 지역별로 업데이트 감지를 건너뛰지 않습니다.
+	# 1. 获取容器及本地镜像信息。更新检测不再按地区跳过。
 	local container_info
 	container_info=$(docker inspect --format='{{.Created}},{{.Config.Image}},{{.Image}}' "$container_name" 2>/dev/null)
 	[[ -z "$container_info" ]] && return
@@ -2670,22 +2670,22 @@ check_docker_image_update() {
 	container_image_id=$(echo "$container_info" | cut -d',' -f3)
 	container_created_ts=$(date -d "$container_created" +%s 2>/dev/null)
 
-	# 2. 지능형 라우팅 판단
+	# 2. 智能路由判断
 	if [[ "$full_image_name" == ghcr.io* ]]; then
-		# --- 시나리오 A: GitHub(ghcr.io)의 미러링 ---
-		# 웨어하우스 경로를 추출합니다(예: ghcr.io/onexru/oneimg -> onexru/oneimg).
+		# --- 场景 A: 镜像在 GitHub (ghcr.io) ---
+		# 提取仓库路径，例如 ghcr.io/onexru/oneimg -> onexru/oneimg
 		local repo_path=$(echo "$full_image_name" | sed 's/ghcr.io\///' | cut -d':' -f1)
-		# 참고: ghcr.io의 API는 비교적 복잡합니다. 일반적으로 가장 빠른 방법은 GitHub Repo 릴리스를 확인하는 것입니다.
+		# 注意：ghcr.io 的 API 比较复杂，通常最快的方法是查 GitHub Repo 的 Release
 		local api_url="https://api.github.com/repos/$repo_path/releases/latest"
 		local remote_date=$(curl -s "$api_url" | jq -r '.published_at' 2>/dev/null)
 
 	elif [[ "$full_image_name" == *"oneimg"* ]]; then
-		# --- 시나리오 B: 특별 지정(Docker Hub에서도 GitHub 릴리스로 판단하고 싶습니다) ---
+		# --- 场景 B: 特殊指定 (即便在 Docker Hub，也想通过 GitHub Release 判断) ---
 		local api_url="https://api.github.com/repos/onexru/oneimg/releases/latest"
 		local remote_date=$(curl -s "$api_url" | jq -r '.published_at' 2>/dev/null)
 
 	else
-		# --- 시나리오 C: 표준 Docker 허브 ---
+		# --- 场景 C: 标准 Docker Hub ---
 		local docker_ref image_repo image_tag api_payload remote_digest local_digest
 		docker_ref=${full_image_name#docker.io/}
 		docker_ref=${docker_ref#index.docker.io/}
@@ -2714,18 +2714,18 @@ check_docker_image_update() {
 		)
 		if [[ "$remote_digest" =~ ^sha256:[a-f0-9]{64}$ && "$local_digest" =~ ^sha256:[a-f0-9]{64}$ ]]; then
 			if [[ "$remote_digest" != "$local_digest" ]]; then
-				update_status="${gl_huang}새 버전이 발견되었습니다!${gl_bai}"
+				update_status="${gl_huang}发现新版本!${gl_bai}"
 			fi
 			return
 		fi
 	fi
 
-	# 3. 레지스트리가 비교 가능한 요약을 제공하지 않는 경우 이는 릴리스 시간 판단과 일치합니다.
+	# 3. Registry 未提供可比较摘要时，兼容使用发布时间判断。
 	if [[ -n "$remote_date" && "$remote_date" != "null" ]]; then
 		local remote_ts=$(date -d "$remote_date" +%s 2>/dev/null)
 		if [[ "$container_created_ts" =~ ^[0-9]+$ && "$remote_ts" =~ ^[0-9]+$ ]] &&
 			[[ $container_created_ts -lt $remote_ts ]]; then
-			update_status="${gl_huang}새 버전이 발견되었습니다!${gl_bai}"
+			update_status="${gl_huang}发现新版本!${gl_bai}"
 		fi
 	fi
 }
@@ -2762,10 +2762,10 @@ block_container_port() {
 	local container_ips
 	local container_ip
 
-	# 규칙을 하나씩 적용하여 모든 Docker 네트워크에서 컨테이너의 IPv4 주소를 가져옵니다.
+	# 获取容器在所有 Docker 网络中的 IPv4 地址，逐个应用规则。
 	container_ips=$(get_container_ipv4_addresses "$container_name_or_id")
 	if [ -z "$container_ips" ]; then
-		echo "오류: 컨테이너를 가져올 수 없습니다.${container_name_or_id}IPv4 주소." >&2
+		echo "错误：无法获取容器 ${container_name_or_id} 的 IPv4 地址。" >&2
 		return 1
 	fi
 
@@ -2781,7 +2781,7 @@ block_container_port() {
 		ensure_docker_user_rule -m state --state ESTABLISHED,RELATED -d "$container_ip" -j ACCEPT || return 1
 	done <<< "$container_ips"
 
-	echo "IP+포트가 서비스 접근을 차단했습니다."
+	echo "已阻止IP+端口访问该服务"
 	save_iptables_rules
 }
 
@@ -2794,10 +2794,10 @@ clear_container_rules() {
 	local container_ips
 	local container_ip
 
-	# 모든 Docker 네트워크에 있는 컨테이너의 IPv4 주소를 가져오고 규칙을 하나씩 지웁니다.
+	# 获取容器在所有 Docker 网络中的 IPv4 地址，逐个清除规则。
 	container_ips=$(get_container_ipv4_addresses "$container_name_or_id")
 	if [ -z "$container_ips" ]; then
-		echo "오류: 컨테이너를 가져올 수 없습니다.${container_name_or_id}IPv4 주소." >&2
+		echo "错误：无法获取容器 ${container_name_or_id} 的 IPv4 地址。" >&2
 		return 1
 	fi
 
@@ -2813,7 +2813,7 @@ clear_container_rules() {
 		remove_docker_user_rule -m state --state ESTABLISHED,RELATED -d "$container_ip" -j ACCEPT || return 1
 	done <<< "$container_ips"
 
-	echo "IP+포트로 서비스 접속이 허용되었습니다"
+	echo "已允许IP+端口访问该服务"
 	save_iptables_rules
 }
 
@@ -2827,25 +2827,25 @@ block_host_port() {
 	local allowed_ip=$2
 
 	if [[ -z "$port" || -z "$allowed_ip" ]]; then
-		echo "오류: 액세스를 허용하려면 포트 번호와 IP를 입력하세요."
-		echo "사용법: block_host_port <포트 번호> <허용 IP>"
+		echo "错误：请提供端口号和允许访问的 IP。"
+		echo "用法: block_host_port <端口号> <允许的IP>"
 		return 1
 	fi
 
 	install iptables
 
 
-	# 다른 모든 IP의 접근을 거부
+	# 拒绝其他所有 IP 访问
 	if ! iptables -C INPUT -p tcp --dport "$port" -j DROP &>/dev/null; then
 		iptables -I INPUT -p tcp --dport "$port" -j DROP
 	fi
 
-	# 지정된 IP에 대한 접근을 허용
+	# 允许指定 IP 访问
 	if ! iptables -C INPUT -p tcp --dport "$port" -s "$allowed_ip" -j ACCEPT &>/dev/null; then
 		iptables -I INPUT -p tcp --dport "$port" -s "$allowed_ip" -j ACCEPT
 	fi
 
-	# 로컬 액세스 허용
+	# 允许本机访问
 	if ! iptables -C INPUT -p tcp --dport "$port" -s 127.0.0.0/8 -j ACCEPT &>/dev/null; then
 		iptables -I INPUT -p tcp --dport "$port" -s 127.0.0.0/8 -j ACCEPT
 	fi
@@ -2854,22 +2854,22 @@ block_host_port() {
 
 
 
-	# 다른 모든 IP의 접근을 거부
+	# 拒绝其他所有 IP 访问
 	if ! iptables -C INPUT -p udp --dport "$port" -j DROP &>/dev/null; then
 		iptables -I INPUT -p udp --dport "$port" -j DROP
 	fi
 
-	# 지정된 IP에 대한 접근을 허용
+	# 允许指定 IP 访问
 	if ! iptables -C INPUT -p udp --dport "$port" -s "$allowed_ip" -j ACCEPT &>/dev/null; then
 		iptables -I INPUT -p udp --dport "$port" -s "$allowed_ip" -j ACCEPT
 	fi
 
-	# 로컬 액세스 허용
+	# 允许本机访问
 	if ! iptables -C INPUT -p udp --dport "$port" -s 127.0.0.0/8 -j ACCEPT &>/dev/null; then
 		iptables -I INPUT -p udp --dport "$port" -s 127.0.0.0/8 -j ACCEPT
 	fi
 
-	# 확립된 관련 연결에 대한 트래픽 허용
+	# 允许已建立和相关连接的流量
 	if ! iptables -C INPUT -m state --state ESTABLISHED,RELATED -j ACCEPT &>/dev/null; then
 		iptables -I INPUT -m state --state ESTABLISHED,RELATED -j ACCEPT
 	fi
@@ -2887,7 +2887,7 @@ clear_host_port_rules() {
 
 	if [[ -z "$port" || -z "$allowed_ip" ]]; then
 		echo "错误：请提供端口号和允许访问的 IP。"
-		echo "사용법:clear_host_port_rules <포트 번호> <허용 IP>"
+		echo "用法: clear_host_port_rules <端口号> <允许的IP>"
 		return 1
 	fi
 
@@ -3250,7 +3250,7 @@ kpanel_run_docker_app_install() {
 	kpanel_app_progress 15 "正在准备 Docker 运行环境"
 	install jq || return 1
 	install_docker || return 1
-	kpanel_app_progress 30 "kejilion.sh 애플리케이션 설치 기능 실행"
+	kpanel_app_progress 30 "正在执行 kejilion.sh 应用安装函数"
 
 	if [ "$adapter" = "plus" ]; then
 		if ! docker_app_install; then
@@ -3307,7 +3307,7 @@ kpanel_run_docker_app_action() {
 			echo "错误: 未发现 kejilion.sh 应用安装标记"
 			return 1
 		fi
-		kpanel_app_progress 10 "kejilion.sh 앱 설치 플래그 수정"
+		kpanel_app_progress 10 "正在修复 kejilion.sh 应用安装标记"
 		add_app_id || return 1
 	fi
 
@@ -3315,7 +3315,7 @@ kpanel_run_docker_app_action() {
 		update)
 			access_mode="$(kpanel_app_read_access_mode)" || return 1
 			kpanel_app_verified_service true >/dev/null || return 1
-			kpanel_app_progress 25 "kejilion.sh 네이티브 업데이트 기능 실행"
+			kpanel_app_progress 25 "正在执行 kejilion.sh 原生更新函数"
 			if [ "$adapter" = "plus" ]; then
 				docker_app_update || return 1
 			else
@@ -3325,14 +3325,14 @@ kpanel_run_docker_app_action() {
 			fi
 			kpanel_app_verified_service false >/dev/null || return 1
 			add_app_id
-			kpanel_app_progress 80 "앱 액세스 정책 복원 중"
+			kpanel_app_progress 80 "正在恢复应用访问策略"
 			kpanel_app_restore_access_mode "$access_mode" || return 1
 			if [ "$adapter" = "standard" ]; then
 				[ -n "${docker_use:-}" ] && $docker_use
 				[ -n "${docker_passwd:-}" ] && $docker_passwd
 			fi
-			kpanel_app_progress 100 "애플리케이션 업데이트 완료"
-			echo "$service_name이미 업데이트되었습니다."
+			kpanel_app_progress 100 "应用更新完成"
+			echo "$service_name 已经更新完成"
 			;;
 		uninstall)
 			kpanel_app_verified_service true >/dev/null || return 1
@@ -3345,12 +3345,12 @@ kpanel_run_docker_app_action() {
 				rm -rf "/home/docker/$docker_name" || return 1
 			fi
 			if docker inspect "$service_name" >/dev/null 2>&1; then
-				echo "오류: 제거 기능이 완료된 후에도 기본 컨테이너가 여전히 존재합니다."
+				echo "错误: 卸载函数完成后主容器仍然存在"
 				return 1
 			fi
 			kpanel_app_remove_compatibility_state || return 1
-			kpanel_app_progress 100 "애플리케이션 제거가 완료되었습니다."
-			echo "$service_name제거가 완료되었습니다."
+			kpanel_app_progress 100 "应用卸载完成"
+			echo "$service_name 已经卸载完成"
 			;;
 		direct_access)
 			access_mode="${KJ_APP_ACCESS_MODE:-}"
@@ -3361,9 +3361,9 @@ kpanel_run_docker_app_action() {
 					return 1
 					;;
 			esac
-			kpanel_app_progress 40 "kejilion.sh IP+포트 접근 정책 실행"
+			kpanel_app_progress 40 "正在执行 kejilion.sh IP+端口访问策略"
 			kpanel_app_apply_access_mode "$access_mode" true || return 1
-			kpanel_app_progress 100 "애플리케이션 액세스 정책 업데이트가 완료되었습니다."
+			kpanel_app_progress 100 "应用访问策略更新完成"
 			;;
 	esac
 	return 0
@@ -3372,7 +3372,7 @@ kpanel_run_docker_app_action() {
 
 
 docker_app() {
-send_stats "${docker_name}관리하다"
+send_stats "${docker_name}管理"
 
 if [ "${KJ_APP_NONINTERACTIVE:-}" = "1" ]; then
 	kpanel_run_docker_app_action standard
@@ -3397,17 +3397,17 @@ while true; do
 	fi
 	echo ""
 	echo "------------------------"
-	echo "1. 설치 2. 업데이트 3. 제거"
+	echo "1. 安装              2. 更新            3. 卸载"
 	echo "------------------------"
 	echo "5. 添加域名访问      6. 删除域名访问"
-	echo "7. IP+포트 접근 허용 8. IP+포트 접근 차단"
+	echo "7. 允许IP+端口访问   8. 阻止IP+端口访问"
 	echo "------------------------"
-	echo "0. 이전 메뉴로 돌아가기"
+	echo "0. 返回上一级选单"
 	echo "------------------------"
 	if [ "${KJ_APP_INTERACTIVE:-}" = "1" ]; then
 		kpanel_app_interactive_choice choice || return 1
 	else
-		read -e -p "선택사항을 입력하세요:" choice
+		read -e -p "请输入你的选择: " choice
 	fi
 	local action_status=0
 	 case $choice in
@@ -3419,7 +3419,7 @@ while true; do
 			install jq
 			install_docker
 			if ! docker_rum; then
-				echo -e "${gl_hong}설치 실패:${gl_bai}애플리케이션 컨테이너를 시작하지 못했습니다."
+				echo -e "${gl_hong}安装失败: ${gl_bai}应用容器未能启动。"
 				if [ "${KJ_APP_INTERACTIVE:-}" = "1" ]; then
 					return 1
 				fi
@@ -3430,18 +3430,18 @@ while true; do
 			kpanel_app_write_access_mode direct
 
 			clear
-			echo "$docker_name설치 완료"
+			echo "$docker_name 已经安装完成"
 			check_docker_app_ip
 			echo ""
 			$docker_use
 			$docker_passwd
-			send_stats "설치하다$docker_name"
+			send_stats "安装$docker_name"
 			;;
 		2)
 			docker rm -f "$docker_name"
 			docker rmi -f "$docker_img"
 			if ! docker_rum; then
-				echo -e "${gl_hong}업데이트 실패:${gl_bai}애플리케이션 컨테이너를 다시 시작하지 못했습니다."
+				echo -e "${gl_hong}更新失败: ${gl_bai}应用容器未能重新启动。"
 				if [ "${KJ_APP_INTERACTIVE:-}" = "1" ]; then
 					return 1
 				fi
@@ -3451,16 +3451,16 @@ while true; do
 			kpanel_app_restore_access_mode "$(kpanel_app_read_access_mode)"
 
 			clear
-			echo "$docker_name설치 완료"
+			echo "$docker_name 已经安装完成"
 			check_docker_app_ip
 			echo ""
 			$docker_use
 			$docker_passwd
-			send_stats "고쳐 쓰다$docker_name"
+			send_stats "更新$docker_name"
 			;;
 		3)
 			if ! docker rm -f "$docker_name"; then
-				echo -e "${gl_hong}제거 실패:${gl_bai}애플리케이션 컨테이너를 삭제할 수 없습니다."
+				echo -e "${gl_hong}卸载失败: ${gl_bai}应用容器未能删除。"
 				if [ "${KJ_APP_INTERACTIVE:-}" = "1" ]; then
 					return 1
 				fi
@@ -3471,13 +3471,13 @@ while true; do
 			rm -f /home/docker/${docker_name}_access.conf
 
 			sed -i "/\b${app_id}\b/d" /home/docker/appno.txt
-			echo "앱이 제거되었습니다."
-			send_stats "제거$docker_name"
+			echo "应用已卸载"
+			send_stats "卸载$docker_name"
 			;;
 
 		5)
-			echo "${docker_name}도메인 이름 액세스 설정"
-			send_stats "${docker_name}도메인 이름 액세스 설정"
+			echo "${docker_name}域名访问设置"
+			send_stats "${docker_name}域名访问设置"
 			add_yuming
 			ldnmp_Proxy ${yuming} 127.0.0.1 ${docker_port}
 			block_container_port "$docker_name" "$ipv4_address"
@@ -3485,18 +3485,18 @@ while true; do
 			;;
 
 		6)
-			echo "https://가 없는 도메인 이름 형식 example.com"
+			echo "域名格式 example.com 不带https://"
 			web_del || action_status=1
 			;;
 
 		7)
-			send_stats "IP 액세스 허용${docker_name}"
+			send_stats "允许IP访问 ${docker_name}"
 			clear_container_rules "$docker_name" "$ipv4_address"
 			kpanel_app_write_access_mode direct || action_status=1
 			;;
 
 		8)
-			send_stats "IP 접근 차단${docker_name}"
+			send_stats "阻止IP访问 ${docker_name}"
 			block_container_port "$docker_name" "$ipv4_address"
 			kpanel_app_write_access_mode domain_only || action_status=1
 			;;
@@ -3542,17 +3542,17 @@ docker_app_plus() {
 		fi
 		echo ""
 		echo "------------------------"
-		echo "1. 설치 2. 업데이트 3. 제거"
+		echo "1. 安装             2. 更新             3. 卸载"
 		echo "------------------------"
-		echo "5. 도메인 이름 액세스 추가 6. 도메인 이름 액세스 삭제"
-		echo "7. IP+포트 접근 허용 8. IP+포트 접근 차단"
+		echo "5. 添加域名访问     6. 删除域名访问"
+		echo "7. 允许IP+端口访问  8. 阻止IP+端口访问"
 		echo "------------------------"
-		echo "0. 이전 메뉴로 돌아가기"
+		echo "0. 返回上一级选单"
 		echo "------------------------"
 		if [ "${KJ_APP_INTERACTIVE:-}" = "1" ]; then
 			kpanel_app_interactive_choice choice || return 1
 		else
-			read -e -p "선택 항목을 입력하세요." choice
+			read -e -p "输入你的选择: " choice
 		fi
 		local action_status=0
 		case $choice in
@@ -3568,9 +3568,9 @@ docker_app_plus() {
 					echo "$docker_port" > "/home/docker/${docker_name}_port.conf"
 					add_app_id
 					kpanel_app_write_access_mode direct
-					send_stats "$app_name설치하다"
+					send_stats "$app_name 安装"
 				else
-					echo -e "${gl_hong}설치 실패:${gl_bai}신청상황이 등록되지 않았습니다. 위의 오류를 수정한 후 다시 시도해 주세요."
+					echo -e "${gl_hong}安装失败: ${gl_bai}未登记应用状态，请根据上方错误修复后重试。"
 					action_status=1
 				fi
 				;;
@@ -3593,7 +3593,7 @@ docker_app_plus() {
 					sed -i "/\b${app_id}\b/d" /home/docker/appno.txt
 					send_stats "$app_name 卸载"
 				else
-					echo -e "${gl_hong}제거 실패:${gl_bai}애플리케이션 등록 상태가 유지되었습니다."
+					echo -e "${gl_hong}卸载失败: ${gl_bai}已保留应用登记状态。"
 					action_status=1
 				fi
 				;;
@@ -3619,7 +3619,7 @@ docker_app_plus() {
 				kpanel_app_write_access_mode direct || action_status=1
 				;;
 			8)
-				send_stats "IP 접근 차단${docker_name}"
+				send_stats "阻止IP访问 ${docker_name}"
 				local docker_check_name="${docker_app_service:-$docker_name}"
 				block_container_port "$docker_check_name" "$ipv4_address"
 				kpanel_app_write_access_mode domain_only || action_status=1
@@ -3709,17 +3709,17 @@ tmux_run_d() {
 local base_name="tmuxd"
 local tmuxd_ID=1
 
-# 세션이 존재하는지 확인하는 함수
+# 检查会话是否存在的函数
 session_exists() {
   tmux has-session -t $1 2>/dev/null
 }
 
-# 존재하지 않는 세션 이름을 찾을 때까지 반복
+# 循环直到找到一个不存在的会话名称
 while session_exists "$base_name-$tmuxd_ID"; do
   local tmuxd_ID=$((tmuxd_ID + 1))
 done
 
-# 새 tmux 세션 만들기
+# 创建新的 tmux 会话
 tmux new -d -s "$base_name-$tmuxd_ID" "$tmuxd"
 
 
@@ -3739,7 +3739,7 @@ f2b_status_xxx() {
 
 check_f2b_status() {
 	if command -v fail2ban-client >/dev/null 2>&1; then
-		check_f2b_status="${gl_lv}설치됨${gl_bai}"
+		check_f2b_status="${gl_lv}已安装${gl_bai}"
 	else
 		check_f2b_status="${gl_hui}未安装${gl_bai}"
 	fi
@@ -3872,7 +3872,7 @@ kpanel_f2b_dispatch() {
 				/bin/systemctl disable --now fail2ban.service >/dev/null 2>&1 || return 1
 			fi
 			if fail2ban-client ping >/dev/null 2>&1; then
-				echo "Fail2Ban 서비스가 아직 실행 중입니다." >&2
+				echo "Fail2Ban 服务仍在运行" >&2
 				return 1
 			fi
 			changed=true
@@ -3905,7 +3905,7 @@ kpanel_f2b_manager_emit() {
 }
 
 kpanel_f2b_manager_error() {
-	printf '오류: %s\n' "$1" >&2
+	printf '错误: %s\n' "$1" >&2
 }
 
 kpanel_f2b_manager_valid_address() {
@@ -4152,7 +4152,7 @@ kpanel_f2b_manager_config_action() {
 		kpanel_f2b_manager_emit conflict "$current_version"
 		return 2
 	fi
-	[ "$F2B_MANAGER_ENABLED" = true ] || { kpanel_f2b_manager_error "SSH 감옥이 실행되지 않음"; kpanel_f2b_manager_emit failed "$current_version"; return 1; }
+	[ "$F2B_MANAGER_ENABLED" = true ] || { kpanel_f2b_manager_error "SSH jail 未运行"; kpanel_f2b_manager_emit failed "$current_version"; return 1; }
 	bantime="$F2B_MANAGER_BANTIME"; findtime="$F2B_MANAGER_FINDTIME"; maxretry="$F2B_MANAGER_MAXRETRY"
 	trusted=("${F2B_MANAGER_TRUSTED[@]}")
 	case "$action" in
@@ -4163,7 +4163,7 @@ kpanel_f2b_manager_config_action() {
 		add-trusted)
 			kpanel_f2b_manager_valid_address "$value" || return 2
 			for item in "${trusted[@]}"; do [ "$item" != "$value" ] || { kpanel_f2b_manager_snapshot unchanged; return 0; }; done
-			[ "${#trusted[@]}" -lt 64 ] || { kpanel_f2b_manager_error "신뢰할 수 있는 최대 주소 수가 64개에 도달했습니다."; return 1; }
+			[ "${#trusted[@]}" -lt 64 ] || { kpanel_f2b_manager_error "信任地址已达到 64 条上限"; return 1; }
 			trusted+=("$value"); changed=true
 			;;
 		remove-trusted)
@@ -4185,20 +4185,20 @@ kpanel_f2b_manager_config_action() {
 		printf '%s\n' false > "$snapshot/config.existed"
 	fi
 	kpanel_f2b_manager_write_config "$F2B_MANAGER_JAIL" "$bantime" "$findtime" "$maxretry" "${trusted[@]}" ||
-		kpanel_f2b_manager_config_failure "$snapshot" "SSH 방어 구성을 쓸 수 없습니다." || return 1
-	fail2ban-client -t >/dev/null 2>&1 || kpanel_f2b_manager_config_failure "$snapshot" "Fail2Ban 구성 확인에 실패했습니다." || return 1
-	fail2ban-client reload >/dev/null 2>&1 || kpanel_f2b_manager_config_failure "$snapshot" "Fail2Ban 구성을 다시 로드하지 못했습니다." || return 1
-	kpanel_f2b_manager_collect || kpanel_f2b_manager_config_failure "$snapshot" "SSH 방어 구성 다시 읽기에 실패했습니다." || return 1
+		kpanel_f2b_manager_config_failure "$snapshot" "无法写入 SSH 防御配置" || return 1
+	fail2ban-client -t >/dev/null 2>&1 || kpanel_f2b_manager_config_failure "$snapshot" "Fail2Ban 配置验证失败" || return 1
+	fail2ban-client reload >/dev/null 2>&1 || kpanel_f2b_manager_config_failure "$snapshot" "Fail2Ban 配置重载失败" || return 1
+	kpanel_f2b_manager_collect || kpanel_f2b_manager_config_failure "$snapshot" "SSH 防御配置回读失败" || return 1
 	[ "$F2B_MANAGER_BANTIME" = "$bantime" ] && [ "$F2B_MANAGER_FINDTIME" = "$findtime" ] && [ "$F2B_MANAGER_MAXRETRY" = "$maxretry" ] ||
-		kpanel_f2b_manager_config_failure "$snapshot" "SSH 방어 정책 다시 읽기가 일관되지 않습니다." || return 1
+		kpanel_f2b_manager_config_failure "$snapshot" "SSH 防御策略回读不一致" || return 1
 	case "$action" in
 		add-trusted)
 			for item in "${F2B_MANAGER_TRUSTED[@]}"; do [ "$item" != "$value" ] || changed=verified; done
-			[ "$changed" = verified ] || kpanel_f2b_manager_config_failure "$snapshot" "SSH 방어 신뢰 주소 다시 읽기가 일관되지 않습니다." || return 1
+			[ "$changed" = verified ] || kpanel_f2b_manager_config_failure "$snapshot" "SSH 防御信任地址回读不一致" || return 1
 			;;
 		remove-trusted)
 			for item in "${F2B_MANAGER_TRUSTED[@]}"; do
-				[ "$item" != "$value" ] || kpanel_f2b_manager_config_failure "$snapshot" "SSH 방어의 신뢰할 수 있는 주소는 여전히 유효합니다." || return 1
+				[ "$item" != "$value" ] || kpanel_f2b_manager_config_failure "$snapshot" "SSH 防御信任地址仍然生效" || return 1
 			done
 			;;
 	esac
@@ -4239,7 +4239,7 @@ kpanel_f2b_manager_unban_action() {
 		for target in "${targets[@]}"; do
 			for item in "${F2B_MANAGER_BANS[@]}"; do
 				[ "$item" != "$target" ] || {
-					kpanel_f2b_manager_error "SSH 금지가 해제된 후 일관되지 않은 읽기"
+					kpanel_f2b_manager_error "SSH 封禁解除后回读不一致"
 					kpanel_f2b_manager_emit needs-attention "$current_version"
 					return 1
 				}
@@ -4323,7 +4323,7 @@ kpanel_f2b_manager_dispatch() {
 			[ "$#" -eq 0 ] || return 2
 			;;
 		*)
-			kpanel_f2b_manager_error "사용법: k f2b 관리자 <status|enable|disable|set-profile|unban|unban-all|add-trusted|remove-trusted|uninstall>"
+			kpanel_f2b_manager_error "用法: k f2b manager <status|enable|disable|set-profile|unban|unban-all|add-trusted|remove-trusted|uninstall>"
 			return 2
 			;;
 	esac
@@ -4395,7 +4395,7 @@ kpanel_system_tuning_switch_mirror() {
 kpanel_system_tuning_kernel_auto() {
 	local script url
 	mkdir -p /etc/sysctl.d /etc/modules-load.d || {
-		kpanel_system_tuning_error "커널 매개변수 구성 디렉터리를 생성할 수 없습니다."
+		kpanel_system_tuning_error "内核参数配置目录无法创建"
 		return 1
 	}
 	script="$(mktemp /tmp/kejilion-system-tuning-network.XXXXXX)" || return 1

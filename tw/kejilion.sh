@@ -1264,7 +1264,7 @@ iptables_panel() {
 add_swap() {
 	local new_swap=$1  # 获取传入的参数
 
-	# 取得目前系統中所有的 swap 分區
+	# 获取当前系统中所有的 swap 分区
 	local swap_partitions=$(grep -E '^/dev/' /proc/swaps | awk '{print $1}')
 
 	# 遍历并删除所有的 swap 分区
@@ -1277,7 +1277,7 @@ add_swap() {
 	# 确保 /swapfile 不再被使用
 	swapoff /swapfile
 
-	# 刪除舊的 /swapfile
+	# 删除旧的 /swapfile
 	rm -f /swapfile
 
 	# 创建新的 swap 分区
@@ -1331,7 +1331,7 @@ ldnmp_v() {
 	  local mysql_version=$(docker exec mysql mysql -u root -p"$dbrootpasswd" -e "SELECT VERSION();" 2>/dev/null | tail -n 1)
 	  echo -n -e "            mysql : ${gl_huang}v$mysql_version${gl_bai}"
 
-	  # 取得php版本
+	  # 获取php版本
 	  local php_version=$(docker exec php php -v 2>/dev/null | grep -oP "PHP \K[0-9]+\.[0-9]+\.[0-9]+")
 	  echo -n -e "            php : ${gl_huang}v$php_version${gl_bai}"
 
@@ -1348,14 +1348,14 @@ ldnmp_v() {
 
 install_ldnmp_conf() {
 
-  # 建立必要的目錄和文件
+  # 创建必要的目录和文件
   cd /home && mkdir -p web/html web/mysql web/certs web/conf.d web/stream.d web/redis web/log/nginx web/letsencrypt && touch web/docker-compose.yml
   wget -O /home/web/nginx.conf ${gh_proxy}raw.githubusercontent.com/kejilion/nginx/main/nginx10.conf
   wget -O /home/web/conf.d/default.conf ${gh_proxy}raw.githubusercontent.com/kejilion/nginx/main/default10.conf
 
   default_server_ssl
 
-  # 下載 docker-compose.yml 檔案並進行替換
+  # 下载 docker-compose.yml 文件并进行替换
   wget -O /home/web/docker-compose.yml ${gh_proxy}raw.githubusercontent.com/kejilion/docker/main/LNMP-docker-compose-10.yml
   dbrootpasswd=$(openssl rand -base64 16) ; dbuse=$(openssl rand -hex 4) ; dbusepasswd=$(openssl rand -base64 8)
 
@@ -1398,7 +1398,7 @@ auto_optimize_dns() {
 	# 获取国家代码（如 CN、US 等）
 	local country=$(curl -s ipinfo.io/country)
 
-	# 根據國家設定 DNS
+	# 根据国家设置 DNS
 	if [ "$country" = "CN" ]; then
 		local dns1_ipv4="223.5.5.5"
 		local dns2_ipv4="183.60.83.19"
@@ -1421,7 +1421,7 @@ prefer_ipv4() {
 grep -q '^precedence ::ffff:0:0/96  100' /etc/gai.conf 2>/dev/null \
 	|| echo 'precedence ::ffff:0:0/96  100' >> /etc/gai.conf
 echo "已切换为 IPv4 优先"
-send_stats "已切換為 IPv4 優先"
+send_stats "已切换为 IPv4 优先"
 }
 
 
@@ -1450,7 +1450,7 @@ install_ldnmp() {
 	  sleep 2
 
 	  clear
-	  echo "LDNMP環境安裝完畢"
+	  echo "LDNMP环境安装完毕"
 	  echo "------------------------"
 	  ldnmp_v
 
@@ -1467,7 +1467,7 @@ install_certbot() {
 	local cron_job="0 0 * * * ~/auto_cert_renewal.sh"
 	crontab -l 2>/dev/null | grep -vF "$cron_job" | crontab -
 	(crontab -l 2>/dev/null; echo "$cron_job") | crontab -
-	echo "續簽任務已更新"
+	echo "续签任务已更新"
 }
 
 
@@ -1518,7 +1518,7 @@ install_ssltls_text() {
 
 
 add_ssl() {
-echo -e "${gl_huang}快速申請SSL證書，過期前自動續約${gl_bai}"
+echo -e "${gl_huang}快速申请SSL证书，过期前自动续签${gl_bai}"
 yuming="${1:-}"
 if [ -z "$yuming" ]; then
 	add_yuming
@@ -1576,21 +1576,21 @@ certs_status() {
 	if [ -f "$file_path" ]; then
 		send_stats "域名证书申请成功"
 	else
-		send_stats "網域證書申請失敗"
+		send_stats "域名证书申请失败"
 		if [ "${KJ_WEB_NONINTERACTIVE:-0}" = "1" ] &&
 			! kpanel_web_interactive; then
-			echo "KPANEL_PROGRESS 100 網域名稱憑證申請失敗，請檢查 DNS、80/443 連接埠和簽發限額"
+			echo "KPANEL_PROGRESS 100 域名证书申请失败，请检查 DNS、80/443 端口和签发限额"
 			return 1
 		fi
-		echo -e "${gl_hong}注意: ${gl_bai}證書申請失敗，請檢查以下可能原因並重試："
-		echo -e "1. 網域拼字錯誤 ➠ 請檢查網域名稱輸入是否正確"
-		echo -e "2. DNS解析問題 ➠ 確認網域名稱已正確解析至本伺服器IP"
-		echo -e "3. 網路設定問題 ➠ 如使用Cloudflare Warp等虛擬網路請暫時關閉"
-		echo -e "4. 防火牆限制 ➠ 檢查80/443連接埠是否開放，確保驗證可存取"
+		echo -e "${gl_hong}注意: ${gl_bai}证书申请失败，请检查以下可能原因并重试："
+		echo -e "1. 域名拼写错误 ➠ 请检查域名输入是否正确"
+		echo -e "2. DNS解析问题 ➠ 确认域名已正确解析到本服务器IP"
+		echo -e "3. 网络配置问题 ➠ 如使用Cloudflare Warp等虚拟网络请暂时关闭"
+		echo -e "4. 防火墙限制 ➠ 检查80/443端口是否开放，确保验证可访问"
 		echo -e "5. 申请次数超限 ➠ Let's Encrypt有每周限额(5次/域名/周)"
 		echo -e "6. 国内备案限制 ➠ 中国大陆环境请确认域名是否备案"
 		echo "------------------------"
-		echo "1. 重新申請 2. 匯入已有憑證 0. 退出"
+		echo "1. 重新申请        2. 导入已有证书        0. 退出"
 		echo "------------------------"
 		read -e -p "请输入你的选择: " sub_choice
 		case $sub_choice in
@@ -1612,7 +1612,7 @@ certs_status() {
 			mkdir -p /home/web/certs
 
 			# 1. 输入证书 (ECC 和 RSA 证书开头都是 BEGIN CERTIFICATE)
-			echo "請貼上 證書 (CRT/PEM) 內容 (以兩次回車結束)："
+			echo "请粘贴 证书 (CRT/PEM) 内容 (按两次回车结束)："
 			local cert_content=""
 			while IFS= read -r line; do
 				[[ -z "$line" && "$cert_content" == *"-----BEGIN"* ]] && break
@@ -1638,7 +1638,7 @@ certs_status() {
 
 				# 识别当前证书类型并显示
 				if [[ "$key_content" == *"EC PRIVATE KEY"* ]]; then
-					echo "偵測到 ECC 憑證已成功儲存。"
+					echo "检测到 ECC 证书已成功保存。"
 				else
 					echo "检测到 RSA 证书已成功保存。"
 				fi
@@ -1693,7 +1693,7 @@ check_ip_and_get_access_port() {
 	local ipv6_pattern='^(([0-9A-Fa-f]{1,4}:){1,7}:|([0-9A-Fa-f]{1,4}:){7,7}[0-9A-Fa-f]{1,4}|::1)$'
 
 	if [[ "$yuming" =~ $ipv4_pattern || "$yuming" =~ $ipv6_pattern ]]; then
-		read -e -p "請輸入訪問/監聽端口，回車預設使用 80:" access_port
+		read -e -p "请输入访问/监听端口，回车默认使用 80: " access_port
 		access_port=${access_port:-80}
 	fi
 }
@@ -2976,7 +2976,7 @@ kpanel_app_interactive_manage_choice() {
 	fi
 	read -r -e -p "请输入你的选择: " selected_choice || return 1
 	if [[ ! "$selected_choice" =~ ^[0-9]+$ ]]; then
-		echo "錯誤: KPanel 應用程式管理終端機只接受選單編號"
+		echo "错误: KPanel 应用管理终端只接受菜单编号"
 		return 1
 	fi
 	printf -v "$target_variable" '%s' "$selected_choice"
@@ -3011,13 +3011,13 @@ kpanel_app_interactive_choice() {
 					printf -v "$target_variable" '%s' "8"
 					;;
 				*)
-					echo "錯誤: KPanel 未提供有效的應用存取模式"
+					echo "错误: KPanel 未提供有效的应用访问模式"
 					return 1
 					;;
 			esac
 			;;
 		*)
-			echo "錯誤: KPanel 交互終端不支援此應用操作"
+			echo "错误: KPanel 交互终端不支持此应用操作"
 			return 1
 			;;
 	esac
@@ -3037,7 +3037,7 @@ kpanel_app_service_name() {
 	local service_name="${docker_app_service:-${docker_name:-}}"
 
 	if [[ ! "$service_name" =~ ^[A-Za-z0-9][A-Za-z0-9_.-]{0,127}$ ]]; then
-		echo "錯誤: 應用主容器名稱無效" >&2
+		echo "错误: 应用主容器名称无效" >&2
 		return 1
 	fi
 	printf '%s\n' "$service_name"
@@ -3051,7 +3051,7 @@ kpanel_app_verified_service() {
 
 	service_name="$(kpanel_app_service_name)" || return 1
 	container_id="$(docker inspect --format '{{.Id}}' "$service_name" 2>/dev/null)" || {
-		echo "錯誤: 未發現應用主容器${service_name}" >&2
+		echo "错误: 未发现应用主容器 ${service_name}" >&2
 		return 1
 	}
 	[ -n "$container_id" ] || {
@@ -3060,7 +3060,7 @@ kpanel_app_verified_service() {
 	}
 	if [ "$verify_expected" = "true" ] && [ -n "$expected_id" ] &&
 		[ "$container_id" != "$expected_id" ]; then
-		echo "錯誤: 應用主容器已變化，請刷新面板後重試" >&2
+		echo "错误: 应用主容器已变化，请刷新面板后重试" >&2
 		return 1
 	fi
 	printf '%s\n' "$service_name"
@@ -3068,7 +3068,7 @@ kpanel_app_verified_service() {
 
 kpanel_app_access_path() {
 	if [[ ! "${docker_name:-}" =~ ^[A-Za-z0-9][A-Za-z0-9_.-]{0,127}$ ]]; then
-		echo "錯誤: 應用狀態檔案名稱無效" >&2
+		echo "错误: 应用状态文件名称无效" >&2
 		return 1
 	fi
 	printf '/home/docker/%s_access.conf\n' "$docker_name"
@@ -3119,7 +3119,7 @@ kpanel_app_write_access_mode() {
 	case "$access_mode" in
 		direct|domain_only) ;;
 		*)
-			echo "錯誤: 不支援的應用程式存取模式" >&2
+			echo "错误: 不支持的应用访问模式" >&2
 			return 1
 			;;
 	esac
@@ -3181,7 +3181,7 @@ kpanel_app_install_port() {
 
 	case "$requested_port" in
 		''|*[!0-9]*)
-			echo "錯誤: KPanel 未提供有效的應用端口"
+			echo "错误: KPanel 未提供有效的应用端口"
 			return 1
 			;;
 	esac
@@ -3190,7 +3190,7 @@ kpanel_app_install_port() {
 		return 1
 	fi
 	if kpanel_app_port_in_use "$requested_port"; then
-		echo "錯誤: 連接埠${requested_port} 已被占用"
+		echo "错误: 端口 ${requested_port} 已被占用"
 		return 1
 	fi
 	docker_port="$requested_port"
@@ -9032,9 +9032,9 @@ restore_backup() {
 	# 选择要恢复的备份
 	read -e -p "请输入要恢复的备份文件名: " BACKUP_NAME
 
-	# 檢查備份檔案是否存在
+	# 检查备份文件是否存在
 	if [ ! -f "$BACKUP_DIR/$BACKUP_NAME" ]; then
-		echo "備份檔案不存在！"
+		echo "备份文件不存在！"
 		exit 1
 	fi
 
@@ -9042,22 +9042,22 @@ restore_backup() {
 	tar -xzvf "$BACKUP_DIR/$BACKUP_NAME" -C /
 
 	if [ $? -eq 0 ]; then
-		echo "備份恢復成功！"
+		echo "备份恢复成功！"
 	else
 		echo "备份恢复失败！"
 		exit 1
 	fi
 }
 
-# 列出備份
+# 列出备份
 list_backups() {
-	echo "可用的備份："
+	echo "可用的备份："
 	ls -1 "$BACKUP_DIR"
 }
 
-# 刪除備份
+# 删除备份
 delete_backup() {
-	send_stats "刪除備份"
+	send_stats "删除备份"
 
 	read -e -p "请输入要删除的备份文件名: " BACKUP_NAME
 
@@ -9205,7 +9205,7 @@ kj_ssh_read_auth() {
 	echo "请选择身份验证方式:"
 	echo "1. 密码"
 	echo "2. 密钥"
-	read -e -p "請輸入選擇 (1/2):" auth_choice
+	read -e -p "请输入选择 (1/2): " auth_choice
 
 	case $auth_choice in
 		1)
@@ -9279,7 +9279,7 @@ list_connections() {
 }
 
 
-# 新增連接
+# 添加新连接
 add_connection() {
 	send_stats "添加新连接"
 	echo "创建新连接示例："
@@ -9304,7 +9304,7 @@ add_connection() {
 # 删除连接
 delete_connection() {
 	send_stats "删除连接"
-	read -e -p "請輸入要刪除的連接編號:" num
+	read -e -p "请输入要删除的连接编号: " num
 
 	local connection=$(sed -n "${num}p" "$CONFIG_FILE")
 	if [[ -z "$connection" ]]; then
@@ -9326,7 +9326,7 @@ delete_connection() {
 # 使用连接
 use_connection() {
 	send_stats "使用连接"
-	read -e -p "請輸入要使用的連接編號:" num
+	read -e -p "请输入要使用的连接编号: " num
 
 	local connection=$(sed -n "${num}p" "$CONFIG_FILE")
 	if [[ -z "$connection" ]]; then
@@ -9357,7 +9357,7 @@ use_connection() {
 		fi
 		sshpass -p "$password_or_key" ssh -o StrictHostKeyChecking=no -p "$port" "$user@$ip"
 		if [[ $? -ne 0 ]]; then
-			echo "連線失敗！請檢查以下內容："
+			echo "连接失败！请检查以下内容："
 			echo "1. 用户名和密码是否正确。"
 			echo "2. 目标服务器是否允许密码登录。"
 			echo "3. 目标服务器的 SSH 服务是否正常运行。"
@@ -9384,7 +9384,7 @@ ssh_manager() {
 
 	while true; do
 		clear
-		echo "SSH 遠端連線工具"
+		echo "SSH 远程连接工具"
 		echo "可以通过SSH连接到其他Linux系统上"
 		echo "------------------------"
 		list_connections
@@ -28568,12 +28568,12 @@ EOF
 
 					  2)
 					   # 提示用户输入新用户名
-					   read -e -p "請輸入新用戶名:" new_username
+					   read -e -p "请输入新用户名: " new_username
 					   create_user_with_sshkey $new_username true
 
 						  ;;
 					  3)
-					   read -e -p "請輸入使用者名稱:" username
+					   read -e -p "请输入用户名: " username
 					   install sudo
 					   cat >"/etc/sudoers.d/$username" <<EOF
 $username ALL=(ALL) NOPASSWD:ALL
@@ -28604,7 +28604,7 @@ EOF
 		  14)
 			clear
 			send_stats "用户信息生成器"
-			echo "隨機使用者名稱"
+			echo "随机用户名"
 			echo "------------------------"
 			for i in {1..5}; do
 				username="user$(< /dev/urandom tr -dc _a-z0-9 | head -c6)"
@@ -28612,7 +28612,7 @@ EOF
 			done
 
 			echo ""
-			echo "隨機姓名"
+			echo "随机姓名"
 			echo "------------------------"
 			local first_names=("John" "Jane" "Michael" "Emily" "David" "Sophia" "William" "Olivia" "James" "Emma" "Ava" "Liam" "Mia" "Noah" "Isabella")
 			local last_names=("Smith" "Johnson" "Brown" "Davis" "Wilson" "Miller" "Jones" "Garcia" "Martinez" "Williams" "Lee" "Gonzalez" "Rodriguez" "Hernandez")
@@ -28657,7 +28657,7 @@ EOF
 			send_stats "换时区"
 			while true; do
 				clear
-				echo "系統時間資訊"
+				echo "系统时间信息"
 
 				# 获取当前系统时区
 				local timezone=$(current_timezone)
@@ -28666,7 +28666,7 @@ EOF
 				local current_time=$(date +"%Y-%m-%d %H:%M:%S")
 
 				# 显示时区和时间
-				echo "目前系統時區：$timezone"
+				echo "当前系统时区：$timezone"
 				echo "当前系统时间：$current_time"
 
 				echo ""
@@ -28741,7 +28741,7 @@ EOF
 		  while true; do
 			  clear
 			  local current_hostname=$(uname -n)
-			  echo -e "目前主機名稱:${gl_huang}$current_hostname${gl_bai}"
+			  echo -e "当前主机名: ${gl_huang}$current_hostname${gl_bai}"
 			  echo "------------------------"
 			  read -e -p "请输入新的主机名（输入0退出）: " new_hostname
 			  if [ -n "$new_hostname" ] && [ "$new_hostname" != "0" ]; then
@@ -28830,7 +28830,7 @@ EOF
 				  echo "------------------------"
 				  echo "1. 添加定时任务              2. 删除定时任务              3. 编辑定时任务"
 				  echo "------------------------"
-				  echo "0. 返回上一級選單"
+				  echo "0. 返回上一级选单"
 				  echo "------------------------"
 				  read -e -p "请输入你的选择: " sub_choice
 
@@ -29367,7 +29367,7 @@ linux_file() {
 				send_stats "返回上一级选单目录"
 				;;
 			11) # 创建文件
-				read -e -p "請輸入要建立的檔案名稱:" filename
+				read -e -p "请输入要创建的文件名: " filename
 				touch "$filename" && echo "文件已创建" || echo "创建失败"
 				send_stats "创建文件"
 				;;
@@ -29375,7 +29375,7 @@ linux_file() {
 				read -e -p "请输入要编辑的文件名: " filename
 				install nano
 				nano "$filename"
-				send_stats "編輯文件"
+				send_stats "编辑文件"
 				;;
 			13) # 修改文件权限
 				read -e -p "请输入文件名: " filename
@@ -29410,19 +29410,19 @@ linux_file() {
 			23) # 移动文件或目录
 				read -e -p "请输入要移动的文件或目录路径: " src_path
 				if [ ! -e "$src_path" ]; then
-					echo "錯誤: 檔案或目錄不存在。"
+					echo "错误: 文件或目录不存在。"
 					send_stats "移动文件或目录失败: 文件或目录不存在"
 					continue
 				fi
 
 				read -e -p "请输入目标路径 (包括新文件名或目录名): " dest_path
 				if [ -z "$dest_path" ]; then
-					echo "錯誤: 請輸入目標路徑。"
-					send_stats "移動檔案或目錄失敗: 目標路徑未指定"
+					echo "错误: 请输入目标路径。"
+					send_stats "移动文件或目录失败: 目标路径未指定"
 					continue
 				fi
 
-				mv "$src_path" "$dest_path" && echo "文件或目录已移动到 $dest_path" || echo "移動檔案或目錄失敗"
+				mv "$src_path" "$dest_path" && echo "文件或目录已移动到 $dest_path" || echo "移动文件或目录失败"
 				send_stats "移动文件或目录"
 				;;
 
@@ -29475,7 +29475,7 @@ EOF
 
 				if [ $? -eq 0 ]; then
 					echo "文件已传送至远程服务器home目录。"
-					send_stats "文件傳送成功"
+					send_stats "文件传送成功"
 				else
 					echo "文件传送失败。"
 					send_stats "文件传送失败"
@@ -29492,7 +29492,7 @@ EOF
 				;;
 			*)  # 处理无效输入
 				echo "无效的选择，请重新输入"
-				send_stats "無效選擇"
+				send_stats "无效选择"
 				;;
 		esac
 	done
@@ -29552,60 +29552,60 @@ fi
 while true; do
 	  clear
 	  send_stats "集群控制中心"
-	  echo "伺服器叢集控制"
+	  echo "服务器集群控制"
 	  cat ~/cluster/servers.py
 	  echo
 	  echo -e "${gl_kjlan}------------------------${gl_bai}"
-	  echo -e "${gl_kjlan}伺服器清單管理${gl_bai}"
-	  echo -e "${gl_kjlan}1.  ${gl_bai}新增伺服器${gl_kjlan}2.  ${gl_bai}刪除伺服器${gl_kjlan}3.  ${gl_bai}编辑服务器"
+	  echo -e "${gl_kjlan}服务器列表管理${gl_bai}"
+	  echo -e "${gl_kjlan}1.  ${gl_bai}添加服务器               ${gl_kjlan}2.  ${gl_bai}删除服务器            ${gl_kjlan}3.  ${gl_bai}编辑服务器"
 	  echo -e "${gl_kjlan}4.  ${gl_bai}备份集群                 ${gl_kjlan}5.  ${gl_bai}还原集群"
 	  echo -e "${gl_kjlan}------------------------${gl_bai}"
-	  echo -e "${gl_kjlan}批次執行任務${gl_bai}"
-	  echo -e "${gl_kjlan}11. ${gl_bai}安裝科技lion腳本${gl_kjlan}12. ${gl_bai}更新系统              ${gl_kjlan}13. ${gl_bai}清理系統"
-	  echo -e "${gl_kjlan}14. ${gl_bai}安装docker               ${gl_kjlan}15. ${gl_bai}安装BBR3              ${gl_kjlan}16. ${gl_bai}設定1G虛擬內存"
-	  echo -e "${gl_kjlan}17. ${gl_bai}設定時區到上海${gl_kjlan}18. ${gl_bai}開放所有連接埠${gl_kjlan}51. ${gl_bai}自訂指令"
+	  echo -e "${gl_kjlan}批量执行任务${gl_bai}"
+	  echo -e "${gl_kjlan}11. ${gl_bai}安装科技lion脚本         ${gl_kjlan}12. ${gl_bai}更新系统              ${gl_kjlan}13. ${gl_bai}清理系统"
+	  echo -e "${gl_kjlan}14. ${gl_bai}安装docker               ${gl_kjlan}15. ${gl_bai}安装BBR3              ${gl_kjlan}16. ${gl_bai}设置1G虚拟内存"
+	  echo -e "${gl_kjlan}17. ${gl_bai}设置时区到上海           ${gl_kjlan}18. ${gl_bai}开放所有端口	       ${gl_kjlan}51. ${gl_bai}自定义指令"
 	  echo -e "${gl_kjlan}------------------------${gl_bai}"
-	  echo -e "${gl_kjlan}0.  ${gl_bai}返回主選單"
+	  echo -e "${gl_kjlan}0.  ${gl_bai}返回主菜单"
 	  echo -e "${gl_kjlan}------------------------${gl_bai}"
-	  read -e -p "請輸入你的選擇:" sub_choice
+	  read -e -p "请输入你的选择: " sub_choice
 
 	  case $sub_choice in
 		  1)
-			  send_stats "新增叢集伺服器"
-			  read -e -p "伺服器名稱:" server_name
-			  read -e -p "伺服器IP:" server_ip
-			  read -e -p "伺服器連接埠（22）:" server_port
+			  send_stats "添加集群服务器"
+			  read -e -p "服务器名称: " server_name
+			  read -e -p "服务器IP: " server_ip
+			  read -e -p "服务器端口（22）: " server_port
 			  local server_port=${server_port:-22}
-			  read -e -p "伺服器使用者名稱（root）:" server_username
+			  read -e -p "服务器用户名（root）: " server_username
 			  local server_username=${server_username:-root}
-			  read -e -p "伺服器用戶密碼:" server_password
+			  read -e -p "服务器用户密码: " server_password
 
 			  sed -i "/servers = \[/a\    {\"name\": \"$server_name\", \"hostname\": \"$server_ip\", \"port\": $server_port, \"username\": \"$server_username\", \"password\": \"$server_password\", \"remote_path\": \"/home/\"}," ~/cluster/servers.py
 
 			  ;;
 		  2)
-			  send_stats "刪除叢集伺服器"
-			  read -e -p "請輸入需要刪除的關鍵字:" rmserver
+			  send_stats "删除集群服务器"
+			  read -e -p "请输入需要删除的关键字: " rmserver
 			  sed -i "/$rmserver/d" ~/cluster/servers.py
 			  ;;
 		  3)
-			  send_stats "編輯叢集伺服器"
+			  send_stats "编辑集群服务器"
 			  install nano
 			  nano ~/cluster/servers.py
 			  ;;
 
 		  4)
 			  clear
-			  send_stats "備份叢集"
-			  echo -e "請將${gl_huang}/root/cluster/servers.py${gl_bai}檔案下載，完成備份！"
+			  send_stats "备份集群"
+			  echo -e "请将 ${gl_huang}/root/cluster/servers.py${gl_bai} 文件下载，完成备份！"
 			  break_end
 			  ;;
 
 		  5)
 			  clear
-			  send_stats "還原叢集"
-			  echo "請上傳您的servers.py，按任意鍵開始上傳！"
-			  echo -e "請上傳您的${gl_huang}servers.py${gl_bai}文件到${gl_huang}/root/cluster/${gl_bai}完成還原！"
+			  send_stats "还原集群"
+			  echo "请上传您的servers.py，按任意键开始上传！"
+			  echo -e "请上传您的 ${gl_huang}servers.py${gl_bai} 文件到 ${gl_huang}/root/cluster/${gl_bai} 完成还原！"
 			  break_end
 			  ;;
 
@@ -29636,8 +29636,8 @@ while true; do
 			  ;;
 
 		  51)
-			  send_stats "自訂執行命令"
-			  read -e -p "請輸入批次執行的命令:" mingling
+			  send_stats "自定义执行命令"
+			  read -e -p "请输入批量执行的命令: " mingling
 			  run_commands_on_servers "${mingling}"
 			  ;;
 
@@ -29655,51 +29655,51 @@ done
 kejilion_Affiliates() {
 
 clear
-send_stats "廣告專欄"
-echo "廣告專欄"
+send_stats "广告专栏"
+echo "广告专栏"
 echo "------------------------"
-echo "將為用戶提供更簡單優雅的推廣與購買體驗！"
+echo "将为用户提供更简单优雅的推广与购买体验！"
 echo ""
-echo -e "伺服器優惠"
+echo -e "服务器优惠"
 echo "------------------------"
-echo -e "${gl_lan}萊卡雲 香港CN2 GIA 韓國雙ISP 美國CN2 GIA 優惠活動${gl_bai}"
-echo -e "${gl_bai}網址: https://www.lcayun.com/aff/ZEXUQBIM${gl_bai}"
+echo -e "${gl_lan}莱卡云 香港CN2 GIA 韩国双ISP 美国CN2 GIA 优惠活动${gl_bai}"
+echo -e "${gl_bai}网址: https://www.lcayun.com/aff/ZEXUQBIM${gl_bai}"
 echo "------------------------"
-echo -e "${gl_lan}VMRack 美國優質原生 CN2 大頻寬 每月9.9刀起${gl_bai}"
-echo -e "${gl_bai}網址: https://www.vmrack.net?ref_code=5bFonow83w5${gl_bai}"
+echo -e "${gl_lan}VMRack 美国优质原生 CN2 大带宽 每月9.9刀起${gl_bai}"
+echo -e "${gl_bai}网址: https://www.vmrack.net?ref_code=5bFonow83w5${gl_bai}"
 echo "------------------------"
-echo -e "${gl_lan}RackNerd 10.99刀每年 美國 1核心 1G記憶體 20G硬碟 1T流量每月${gl_bai}"
-echo -e "${gl_bai}網址: https://my.racknerd.com/aff.php?aff=5501&pid=879${gl_bai}"
+echo -e "${gl_lan}RackNerd 10.99刀每年 美国 1核心 1G内存 20G硬盘 1T流量每月${gl_bai}"
+echo -e "${gl_bai}网址: https://my.racknerd.com/aff.php?aff=5501&pid=879${gl_bai}"
 echo "------------------------"
-echo -e "${gl_zi}Hostinger 52.7刀每年 美國 1核心 4G記憶體 50G硬碟 4T流量每月${gl_bai}"
-echo -e "${gl_bai}網址: https://cart.hostinger.com/pay/d83c51e9-0c28-47a6-8414-b8ab010ef94f?_ga=GA1.3.942352702.1711283207${gl_bai}"
+echo -e "${gl_zi}Hostinger 52.7刀每年 美国 1核心 4G内存 50G硬盘 4T流量每月${gl_bai}"
+echo -e "${gl_bai}网址: https://cart.hostinger.com/pay/d83c51e9-0c28-47a6-8414-b8ab010ef94f?_ga=GA1.3.942352702.1711283207${gl_bai}"
 echo "------------------------"
-echo -e "${gl_huang}搬運工 49刀每季 美國CN2GIA 日本軟銀 2核心 1G內存 20G硬碟 1T流量每月${gl_bai}"
-echo -e "${gl_bai}網址: https://bandwagonhost.com/aff.php?aff=69004&pid=87${gl_bai}"
+echo -e "${gl_huang}搬瓦工 49刀每季 美国CN2GIA 日本软银 2核心 1G内存 20G硬盘 1T流量每月${gl_bai}"
+echo -e "${gl_bai}网址: https://bandwagonhost.com/aff.php?aff=69004&pid=87${gl_bai}"
 echo "------------------------"
-echo -e "${gl_lan}DMIT 28刀每季 美國CN2GIA 1核心 2G記憶體 20G硬碟 800G流量每月${gl_bai}"
-echo -e "${gl_bai}網址: https://www.dmit.io/aff.php?aff=4966&pid=100${gl_bai}"
+echo -e "${gl_lan}DMIT 28刀每季 美国CN2GIA 1核心 2G内存 20G硬盘 800G流量每月${gl_bai}"
+echo -e "${gl_bai}网址: https://www.dmit.io/aff.php?aff=4966&pid=100${gl_bai}"
 echo "------------------------"
 echo -e "${gl_zi}V.PS 6.9刀每月 东京软银 2核心 1G内存 20G硬盘 1T流量每月${gl_bai}"
-echo -e "${gl_bai}網址: https://vps.hosting/cart/tokyo-cloud-kvm-vps/?id=148&?affid=1355&?affid=1355${gl_bai}"
+echo -e "${gl_bai}网址: https://vps.hosting/cart/tokyo-cloud-kvm-vps/?id=148&?affid=1355&?affid=1355${gl_bai}"
 echo "------------------------"
-echo -e "${gl_kjlan}VPS更多熱門優惠${gl_bai}"
-echo -e "${gl_bai}網址: https://kejilion.pro/topvps/${gl_bai}"
+echo -e "${gl_kjlan}VPS更多热门优惠${gl_bai}"
+echo -e "${gl_bai}网址: https://kejilion.pro/topvps/${gl_bai}"
 echo "------------------------"
 echo ""
-echo -e "網域優惠"
+echo -e "域名优惠"
 echo "------------------------"
 echo -e "${gl_lan}GNAME 8.8刀首年COM域名 6.68刀首年CC域名${gl_bai}"
-echo -e "${gl_bai}網址: https://www.gname.com/register?tt=86836&ttcode=KEJILION86836&ttbj=sh${gl_bai}"
+echo -e "${gl_bai}网址: https://www.gname.com/register?tt=86836&ttcode=KEJILION86836&ttbj=sh${gl_bai}"
 echo "------------------------"
 echo ""
-echo -e "科技lion週邊"
+echo -e "科技lion周边"
 echo "------------------------"
-echo -e "${gl_kjlan}B站:${gl_bai}https://b23.tv/2mqnQyh              ${gl_kjlan}油管:${gl_bai}https://www.youtube.com/@kejilion${gl_bai}"
-echo -e "${gl_kjlan}官網:${gl_bai}https://kejilion.pro/              ${gl_kjlan}導航:${gl_bai}https://dh.kejilion.pro/${gl_bai}"
-echo -e "${gl_kjlan}部落格:${gl_bai}https://blog.kejilion.pro/         ${gl_kjlan}软件中心: ${gl_bai}https://app.kejilion.pro/${gl_bai}"
+echo -e "${gl_kjlan}B站: ${gl_bai}https://b23.tv/2mqnQyh              ${gl_kjlan}油管: ${gl_bai}https://www.youtube.com/@kejilion${gl_bai}"
+echo -e "${gl_kjlan}官网: ${gl_bai}https://kejilion.pro/              ${gl_kjlan}导航: ${gl_bai}https://dh.kejilion.pro/${gl_bai}"
+echo -e "${gl_kjlan}博客: ${gl_bai}https://blog.kejilion.pro/         ${gl_kjlan}软件中心: ${gl_bai}https://app.kejilion.pro/${gl_bai}"
 echo "------------------------"
-echo -e "${gl_kjlan}腳本官網:${gl_bai}https://kejilion.sh            ${gl_kjlan}GitHub地址:${gl_bai}${gh_https_url}github.com/kejilion/sh${gl_bai}"
+echo -e "${gl_kjlan}脚本官网: ${gl_bai}https://kejilion.sh            ${gl_kjlan}GitHub地址: ${gl_bai}${gh_https_url}github.com/kejilion/sh${gl_bai}"
 echo "------------------------"
 echo ""
 }
@@ -29711,22 +29711,22 @@ games_server_tools() {
 
 	while true; do
 	  clear
-	  echo -e "遊戲開服腳本合集"
+	  echo -e "游戏开服脚本合集"
 	  echo -e "${gl_kjlan}------------------------"
-	  echo -e "${gl_kjlan}1. ${gl_bai}幻獸帕魯開服腳本"
-	  echo -e "${gl_kjlan}2. ${gl_bai}我的世界開服腳本"
+	  echo -e "${gl_kjlan}1. ${gl_bai}幻兽帕鲁开服脚本"
+	  echo -e "${gl_kjlan}2. ${gl_bai}我的世界开服脚本"
 	  echo -e "${gl_kjlan}------------------------"
-	  echo -e "${gl_kjlan}0. ${gl_bai}返回主選單"
+	  echo -e "${gl_kjlan}0. ${gl_bai}返回主菜单"
 	  echo -e "${gl_kjlan}------------------------${gl_bai}"
-	  read -e -p "請輸入你的選擇:" sub_choice
+	  read -e -p "请输入你的选择: " sub_choice
 
 	  case $sub_choice in
 
-		  1) send_stats "幻獸帕魯開服腳本" ; cd ~
+		  1) send_stats "幻兽帕鲁开服脚本" ; cd ~
 			 curl -sS -O ${gh_proxy}raw.githubusercontent.com/kejilion/sh/main/palworld.sh ; chmod +x palworld.sh ; ./palworld.sh
 			 exit
 			 ;;
-		  2) send_stats "我的世界開服腳本" ; cd ~
+		  2) send_stats "我的世界开服脚本" ; cd ~
 			 curl -sS -O ${gh_proxy}raw.githubusercontent.com/kejilion/sh/main/mc.sh ; chmod +x mc.sh ; ./mc.sh
 			 exit
 			 ;;
@@ -29736,7 +29736,7 @@ games_server_tools() {
 			;;
 
 		  *)
-			echo "無效的輸入!"
+			echo "无效的输入!"
 			;;
 	  esac
 	  break_end
@@ -29768,27 +29768,27 @@ games_server_tools() {
 
 kejilion_update() {
 
-send_stats "腳本更新"
+send_stats "脚本更新"
 cd ~
 while true; do
 	clear
-	echo "更新日誌"
+	echo "更新日志"
 	echo "------------------------"
-	echo "全部日誌:${gh_proxy}raw.githubusercontent.com/kejilion/sh/main/kejilion_sh_log.txt"
+	echo "全部日志: ${gh_proxy}raw.githubusercontent.com/kejilion/sh/main/kejilion_sh_log.txt"
 	echo "------------------------"
 
 	curl -s --max-time 15 ${gh_proxy}raw.githubusercontent.com/kejilion/sh/main/kejilion_sh_log.txt | tail -n 30
-	# 只下載前5行取得版本號，避免下載整個腳本
+	# 只下载前5行获取版本号，避免下载整个脚本
 	local sh_v_new=$(curl -s --max-time 15 -r 0-200 ${gh_proxy}raw.githubusercontent.com/kejilion/sh/main/kejilion.sh | grep -o 'sh_v="[0-9.]*"' | head -1 | cut -d '"' -f 2)
 
 	if [ -z "$sh_v_new" ]; then
-		echo -e "${gl_hong}無法獲取最新版本信息，請檢查網絡連接${gl_bai}"
+		echo -e "${gl_hong}无法获取最新版本信息，请检查网络连接${gl_bai}"
 	elif [ "$sh_v" = "$sh_v_new" ]; then
-		echo -e "${gl_lv}你已經是最新版本！${gl_huang}v$sh_v${gl_bai}"
-		send_stats "腳本已經最新了，無需更新"
+		echo -e "${gl_lv}你已经是最新版本！${gl_huang}v$sh_v${gl_bai}"
+		send_stats "脚本已经最新了，无需更新"
 	else
-		echo "發現新版本！"
-		echo -e "目前版本 v$sh_v最新版本${gl_huang}v$sh_v_new${gl_bai}"
+		echo "发现新版本！"
+		echo -e "当前版本 v$sh_v        最新版本 ${gl_huang}v$sh_v_new${gl_bai}"
 	fi
 
 
@@ -29797,15 +29797,15 @@ while true; do
 
 	if [ -n "$existing_cron" ]; then
 		echo "------------------------"
-		echo -e "${gl_lv}自動更新已開啟，每天凌晨2點腳本會自動更新！${gl_bai}"
+		echo -e "${gl_lv}自动更新已开启，每天凌晨2点脚本会自动更新！${gl_bai}"
 	fi
 
 	echo "------------------------"
-	echo "1. 現在更新 2. 開啟自動更新 3. 關閉自動更新"
+	echo "1. 现在更新            2. 开启自动更新            3. 关闭自动更新"
 	echo "------------------------"
-	echo "0. 返回主選單"
+	echo "0. 返回主菜单"
 	echo "------------------------"
-	read -e -p "請輸入你的選擇:" choice
+	read -e -p "请输入你的选择: " choice
 	case "$choice" in
 		1)
 			clear
@@ -29817,10 +29817,10 @@ while true; do
 				download_url="${gh_proxy}raw.githubusercontent.com/kejilion/sh/main/kejilion.sh"
 			fi
 
-			# 備份當前腳本
+			# 备份当前脚本
 			cp -f ~/kejilion.sh ~/kejilion.sh.bak 2>/dev/null
 
-			# 下載到臨時文件，校驗後再替換
+			# 下载到临时文件，校验后再替换
 			local tmp_file=$(mktemp ~/kejilion_tmp.XXXXXX)
 			if curl -sS --max-time 60 --fail -o "$tmp_file" "$download_url" && \
 			   [ -s "$tmp_file" ] && \
@@ -29832,16 +29832,16 @@ while true; do
 				yinsiyuanquan2
 				cp -f ~/kejilion.sh /usr/local/bin/k > /dev/null 2>&1
 				ln -sf /usr/local/bin/k /usr/bin/k > /dev/null 2>&1
-				echo -e "${gl_lv}腳本已更新到最新版本！${gl_huang}v$sh_v_new${gl_bai}"
-				send_stats "腳本已經最新$sh_v_new"
+				echo -e "${gl_lv}脚本已更新到最新版本！${gl_huang}v$sh_v_new${gl_bai}"
+				send_stats "脚本已经最新$sh_v_new"
 			else
 				rm -f "$tmp_file"
-				# 恢復備份
+				# 恢复备份
 				if [ -f ~/kejilion.sh.bak ]; then
 					mv -f ~/kejilion.sh.bak ~/kejilion.sh
 				fi
-				echo -e "${gl_hong}更新失敗！下載出錯或檔案校驗不通過，已恢復原始版本${gl_bai}"
-				send_stats "腳本更新失敗"
+				echo -e "${gl_hong}更新失败！下载出错或文件校验不通过，已恢复原版本${gl_bai}"
+				send_stats "脚本更新失败"
 			fi
 			break_end
 			~/kejilion.sh
@@ -29863,31 +29863,31 @@ while true; do
 				cron_sed_cmd=""
 			fi
 
-			# 建置健全的自動更新指令：下載到暫存檔案 → 校驗 → 備份 → 取代 → 還原本機設定 → 部署
+			# 构建健壮的自动更新命令：下载到临时文件 → 校验 → 备份 → 替换 → 恢复本地设置 → 部署
 			SH_Update_task="cd ~ && tmp=\$(mktemp ~/kejilion_tmp.XXXXXX) && curl -sS --max-time 60 --fail -o \"\$tmp\" ${cron_proxy}raw.githubusercontent.com/kejilion/sh/main/kejilion.sh && [ -s \"\$tmp\" ] && head -1 \"\$tmp\" | grep -q '^#!/bin/bash' && cp -f ~/kejilion.sh ~/kejilion.sh.bak 2>/dev/null && chmod +x \"\$tmp\" && mv -f \"\$tmp\" ~/kejilion.sh"
-			# 追加設定恢復
+			# 追加设置恢复
 			if [ -n "$cron_sed_cmd" ]; then
 				SH_Update_task="$SH_Update_task && $cron_sed_cmd"
 			fi
-			# 從舊腳本恢復 permission_granted 和 ENABLE_STATS 設置
+			# 从旧脚本恢复 permission_granted 和 ENABLE_STATS 设置
 			SH_Update_task="$SH_Update_task && grep -q 'permission_granted=\"true\"' ~/kejilion.sh.bak 2>/dev/null && sed -i 's/permission_granted=\"false\"/permission_granted=\"true\"/' ~/kejilion.sh; grep -q 'ENABLE_STATS=\"false\"' ~/kejilion.sh.bak 2>/dev/null && sed -i 's/ENABLE_STATS=\"true\"/ENABLE_STATS=\"false\"/' ~/kejilion.sh"
 			# 部署到 /usr/local/bin/k 和 /usr/bin/k
 			SH_Update_task="$SH_Update_task; cp -f ~/kejilion.sh /usr/local/bin/k 2>/dev/null; ln -sf /usr/local/bin/k /usr/bin/k 2>/dev/null"
-			# 下載失敗時清理暫存文件
+			# 下载失败时清理临时文件
 			SH_Update_task="$SH_Update_task || rm -f \"\$tmp\" 2>/dev/null"
 
 			check_crontab_installed
 			(crontab -l | grep -v "kejilion.sh") | crontab -
 			(crontab -l 2>/dev/null; echo "$(shuf -i 0-59 -n 1) 2 * * * bash -c '$SH_Update_task'") | crontab -
-			echo -e "${gl_lv}自動更新已開啟，每天凌晨2點腳本會自動更新！${gl_bai}"
-			send_stats "開啟腳本自動更新"
+			echo -e "${gl_lv}自动更新已开启，每天凌晨2点脚本会自动更新！${gl_bai}"
+			send_stats "开启脚本自动更新"
 			break_end
 			;;
 		3)
 			clear
 			(crontab -l | grep -v "kejilion.sh") | crontab -
-			echo -e "${gl_lv}自動更新已關閉${gl_bai}"
-			send_stats "關閉腳本自動更新"
+			echo -e "${gl_lv}自动更新已关闭${gl_bai}"
+			send_stats "关闭脚本自动更新"
 			break_end
 			;;
 		*)
@@ -29909,35 +29909,35 @@ echo -e "${gl_kjlan}"
 echo "╦╔═╔═╗ ╦╦╦  ╦╔═╗╔╗╔ ╔═╗╦ ╦"
 echo "╠╩╗║╣  ║║║  ║║ ║║║║ ╚═╗╠═╣"
 echo "╩ ╩╚═╝╚╝╩╩═╝╩╚═╝╝╚╝o╚═╝╩ ╩"
-echo -e "科技lion腳本工具箱 v$sh_v"
-echo -e "命令列輸入${gl_huang}k${gl_kjlan}可快速啟動腳本${gl_bai}"
+echo -e "科技lion脚本工具箱 v$sh_v"
+echo -e "命令行输入${gl_huang}k${gl_kjlan}可快速启动脚本${gl_bai}"
 echo -e "${gl_kjlan}------------------------${gl_bai}"
-echo -e "${gl_kjlan}1.   ${gl_bai}系統資訊查詢"
-echo -e "${gl_kjlan}2.   ${gl_bai}系統更新"
-echo -e "${gl_kjlan}3.   ${gl_bai}系統清理"
-echo -e "${gl_kjlan}4.   ${gl_bai}基礎工具"
+echo -e "${gl_kjlan}1.   ${gl_bai}系统信息查询"
+echo -e "${gl_kjlan}2.   ${gl_bai}系统更新"
+echo -e "${gl_kjlan}3.   ${gl_bai}系统清理"
+echo -e "${gl_kjlan}4.   ${gl_bai}基础工具"
 echo -e "${gl_kjlan}5.   ${gl_bai}BBR管理"
 echo -e "${gl_kjlan}6.   ${gl_bai}Docker管理"
 echo -e "${gl_kjlan}7.   ${gl_bai}WARP管理"
-echo -e "${gl_kjlan}8.   ${gl_bai}測試腳本合集"
-echo -e "${gl_kjlan}9.   ${gl_bai}甲骨文雲腳本合集"
+echo -e "${gl_kjlan}8.   ${gl_bai}测试脚本合集"
+echo -e "${gl_kjlan}9.   ${gl_bai}甲骨文云脚本合集"
 echo -e "${gl_huang}10.  ${gl_bai}LDNMP建站"
-echo -e "${gl_kjlan}11.  ${gl_bai}應用市場"
-echo -e "${gl_kjlan}12.  ${gl_bai}後台工作區"
-echo -e "${gl_kjlan}13.  ${gl_bai}系統工具"
-echo -e "${gl_kjlan}14.  ${gl_bai}伺服器叢集控制"
-echo -e "${gl_kjlan}15.  ${gl_bai}廣告專欄"
-echo -e "${gl_kjlan}16.  ${gl_bai}遊戲開服腳本合集"
+echo -e "${gl_kjlan}11.  ${gl_bai}应用市场"
+echo -e "${gl_kjlan}12.  ${gl_bai}后台工作区"
+echo -e "${gl_kjlan}13.  ${gl_bai}系统工具"
+echo -e "${gl_kjlan}14.  ${gl_bai}服务器集群控制"
+echo -e "${gl_kjlan}15.  ${gl_bai}广告专栏"
+echo -e "${gl_kjlan}16.  ${gl_bai}游戏开服脚本合集"
 echo -e "${gl_kjlan}------------------------${gl_bai}"
-echo -e "${gl_kjlan}00.  ${gl_bai}腳本更新"
+echo -e "${gl_kjlan}00.  ${gl_bai}脚本更新"
 echo -e "${gl_kjlan}------------------------${gl_bai}"
-echo -e "${gl_kjlan}0.   ${gl_bai}退出腳本"
+echo -e "${gl_kjlan}0.   ${gl_bai}退出脚本"
 echo -e "${gl_kjlan}------------------------${gl_bai}"
-read -e -p "請輸入你的選擇:" choice
+read -e -p "请输入你的选择: " choice
 
 case $choice in
   1) linux_info ;;
-  2) clear ; send_stats "系統更新" ; linux_update ;;
+  2) clear ; send_stats "系统更新" ; linux_update ;;
   3) clear ; send_stats "系统清理" ; linux_clean ;;
   4) linux_tools ;;
   5) linux_bbr ;;
